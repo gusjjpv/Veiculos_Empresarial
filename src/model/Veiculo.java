@@ -1,9 +1,14 @@
 package model;
 
 import java.util.Date;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.stream.Collectors;
 
-public class Veiculo{
-    
+public class Veiculo {
+
+    private static List<Veiculo> frota = new ArrayList<>();
+
     private String placa;
     private String modelo;
     private String marca;
@@ -13,9 +18,8 @@ public class Veiculo{
     private double quilometragemAtual;
     private Date ultimaDataDeRevisao;
 
-
     public Veiculo(String placa, String modelo, String marca, String ano, String cor,
-    StatusVeiculo status, double quilometragemAtual, Date ultimaDataDeRevisao) {
+            StatusVeiculo status, double quilometragemAtual, Date ultimaDataDeRevisao) {
         this.placa = placa;
         this.modelo = modelo;
         this.marca = marca;
@@ -90,7 +94,57 @@ public class Veiculo{
         this.ultimaDataDeRevisao = ultimaDataDeRevisao;
     }
 
-    // Implementacao dos outros Metodos e logica
+    public void usarVeiculo() {
+        this.setStatus(StatusVeiculo.EM_USO);
+    }
 
+    public void atualizarStatus(StatusVeiculo novoStatus) {
+        this.setStatus(novoStatus);
+    }
+
+    public void atualizarQuilometragem(double novaKm) {
+        if (novaKm >= this.quilometragemAtual) {
+            this.setQuilometragemAtual(novaKm);
+        }
+    }
+
+    public boolean verificarNecessidadeRevisao() {
+        return this.quilometragemAtual % 10000 == 0;
+    }
+
+    public static void cadastrarVeiculo(Veiculo veiculo) {
+        frota.add(veiculo);
+    }
+
+    public static void atualizarVeiculo(Veiculo veiculo) {
+        for (int i = 0; i < frota.size(); i++) {
+            if (frota.get(i).getPlaca().equals(veiculo.getPlaca())) {
+                frota.set(i, veiculo);
+                return;
+            }
+        }
+    }
+
+    public static void excluirVeiculo(String placa) {
+        frota.removeIf(v -> v.getPlaca().equals(placa));
+    }
+
+    public static List<Veiculo> listarVeiculos() {
+        return new ArrayList<>(frota);
+    }
+
+    public static List<Veiculo> listarVeiculosDisponiveis() {
+        return frota.stream()
+                .filter(v -> v.getStatus() == StatusVeiculo.DISPONIVEL)
+                .collect(Collectors.toList());
+    }
+
+    public static Veiculo buscarVeiculoPorPlaca(String placa) {
+        for (Veiculo v : frota) {
+            if (v.getPlaca().equals(placa)) {
+                return v;
+            }
+        }
+        return null;
+    }
 }
-
