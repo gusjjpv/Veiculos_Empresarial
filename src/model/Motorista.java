@@ -10,9 +10,26 @@ public class Motorista extends Usuario{
         this.cnh = cnh;
     }
 
+    public void cadastrarMotorista(){
+    }
+
+    public void excluirMotorista(){
+    }
+
+    public void listarTodosMotoristas(){
+    }
+
+    public void atualizarDadosDeMotorista(){
+    }
+
+    public void atualizarDadoDeMotorista(){
+    }
+
+    public void buscarMotorista(){
+    }
+
     @Override
     public String toString(){
         return super.toString() + " setor:" + this.setor + " cnh:" + this.cnh;
     }
-
 }

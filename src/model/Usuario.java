@@ -19,7 +19,7 @@ public class Usuario {
     }
 
     public String toString() {
-        return "nome:" + this.nome;
+        return "nome:" + this.nome + " ehAdm: " + (ehAdm ? "sim":"nao");
     }
 }
 
