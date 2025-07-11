@@ -12,13 +12,13 @@ public class Veiculo {
     private String placa;
     private String modelo;
     private String marca;
-    private String ano;
+    private int ano;
     private String cor;
     private StatusVeiculo status;
     private double quilometragemAtual;
     private Date ultimaDataDeRevisao;
 
-    public Veiculo(String placa, String modelo, String marca, String ano, String cor,
+    public Veiculo(String placa, String modelo, String marca, int ano, String cor,
             StatusVeiculo status, double quilometragemAtual, Date ultimaDataDeRevisao) {
         this.placa = placa;
         this.modelo = modelo;
@@ -54,11 +54,11 @@ public class Veiculo {
         this.marca = marca;
     }
 
-    public String getAno() { // CORRIGIDO: Retorna String
+    public int getAno() {
         return ano;
     }
 
-    public void setAno(String ano) { // CORRIGIDO: Recebe String
+    public void setAno(int ano) {
         this.ano = ano;
     }
 

@@ -1,35 +1,51 @@
 package main.java.com.devShow.Veiculos_Empresarial.model;
 
-public class Motorista extends Usuario{
+public class Motorista extends Usuario {
     private String setor;
     private String cnh;
 
-    public Motorista(String nome, String senha,String setor, String cnh){
-        super(nome, senha, false);
+    public Motorista(String nome, String username, String senha, String setor, String cnh) {
+        super(nome, username, senha, false);
         this.setor = setor;
         this.cnh = cnh;
     }
 
-    public void cadastrarMotorista(){
+    public String getSetor() {
+        return setor;
     }
 
-    public void excluirMotorista(){
+    public void setSetor(String setor) {
+        this.setor = setor;
     }
 
-    public void listarTodosMotoristas(){
+    public String getCnh() {
+        return cnh;
     }
 
-    public void atualizarDadosDeMotorista(){
+    public void setCnh(String cnh) {
+        this.cnh = cnh;
     }
 
-    public void atualizarDadoDeMotorista(){
+    public void cadastrarMotorista() {
     }
 
-    public void buscarMotorista(){
+    public void excluirMotorista() {
+    }
+
+    public void listarTodosMotoristas() {
+    }
+
+    public void atualizarDadosDeMotorista() {
+    }
+
+    public void atualizarDadoDeMotorista() {
+    }
+
+    public void buscarMotorista() {
     }
 
     @Override
-    public String toString(){
+    public String toString() {
         return super.toString() + " setor:" + this.setor + " cnh:" + this.cnh;
     }
 }
