@@ -33,15 +33,15 @@ public class Motorista extends Usuario {
     }
 
     public void listarTodosMotoristas() {
+        // TODO: Implementar lógica de listagem
     }
 
     public void atualizarDadosDeMotorista() {
-    }
-
-    public void atualizarDadoDeMotorista() {
+        // TODO: Implementar lógica de atualização
     }
 
     public void buscarMotorista() {
+        // TODO: Implementar lógica de busca
     }
 
     @Override

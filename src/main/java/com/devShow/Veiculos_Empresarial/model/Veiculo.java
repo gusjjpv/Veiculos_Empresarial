@@ -147,4 +147,10 @@ public class Veiculo {
         }
         return null;
     }
+
+    @Override
+    public String toString() {
+        return String.format("Veiculo{placa='%s', modelo='%s', marca='%s', ano=%d, cor='%s', status=%s, km=%.1f}", 
+                           placa, modelo, marca, ano, cor, status, quilometragemAtual);
+    }
 }
