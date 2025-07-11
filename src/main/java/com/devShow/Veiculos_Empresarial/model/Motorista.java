@@ -33,7 +33,6 @@ public class Motorista extends Usuario {
     }
 
     public void listarTodosMotoristas() {
-        // TODO: Implementar lógica de listagem
     }
 
     public void atualizarDadosDeMotorista() {
@@ -41,7 +40,6 @@ public class Motorista extends Usuario {
     }
 
     public void buscarMotorista() {
-        // TODO: Implementar lógica de busca
     }
 
     @Override
