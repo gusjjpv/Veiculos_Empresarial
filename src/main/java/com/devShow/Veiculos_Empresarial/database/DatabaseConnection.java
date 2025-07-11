@@ -92,7 +92,7 @@ public class DatabaseConnection {
                 CREATE TABLE IF NOT EXISTS usuarios (
                     id INTEGER PRIMARY KEY AUTOINCREMENT,
                     nome TEXT NOT NULL,
-                    email TEXT UNIQUE NOT NULL,
+                    user_name TEXT UNIQUE NOT NULL,
                     senha TEXT NOT NULL,
                     tipo TEXT NOT NULL CHECK (tipo IN ('ADMIN', 'FUNCIONARIO')),
                     ativo BOOLEAN DEFAULT TRUE,
@@ -104,13 +104,12 @@ public class DatabaseConnection {
             stmt.execute("""
                 CREATE TABLE IF NOT EXISTS motoristas (
                     id INTEGER PRIMARY KEY AUTOINCREMENT,
-                    nome TEXT NOT NULL,
+                    setor TEXT NOT NULL,
                     cnh TEXT UNIQUE NOT NULL,
-                    categoria_cnh TEXT NOT NULL,
-                    validade_cnh DATE NOT NULL,
-                    telefone TEXT,
+                    usuario_id INTEGER NOT NULL,
                     ativo BOOLEAN DEFAULT TRUE,
-                    data_criacao TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+                    data_criacao TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                    FOREIGN KEY (usuario_id) REFERENCES usuarios(id)
                 )
             """);
             
@@ -123,9 +122,9 @@ public class DatabaseConnection {
                     marca TEXT NOT NULL,
                     ano INTEGER NOT NULL,
                     cor TEXT,
-                    quilometragem INTEGER DEFAULT 0,
-                    combustivel TEXT NOT NULL CHECK (combustivel IN ('GASOLINA', 'ETANOL', 'DIESEL', 'GNV', 'FLEX')),
+                    quilometragem REAL DEFAULT 0,
                     status TEXT NOT NULL DEFAULT 'DISPONIVEL' CHECK (status IN ('DISPONIVEL', 'EM_USO', 'MANUTENCAO', 'INDISPONIVEL')),
+                    ultima_data_revisao DATE,
                     data_criacao TIMESTAMP DEFAULT CURRENT_TIMESTAMP
                 )
             """);
