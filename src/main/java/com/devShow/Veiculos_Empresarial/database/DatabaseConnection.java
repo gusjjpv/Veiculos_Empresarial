@@ -81,9 +81,7 @@ public class DatabaseConnection {
         }
     }
     
-    /**
-     * Cria as tabelas necessárias no banco de dados
-     */
+    //Cria as tabelas necessárias no banco de dados
     private void createTables() {
         try (Statement stmt = connection.createStatement()) {
             
@@ -138,11 +136,9 @@ public class DatabaseConnection {
                     usuario_id INTEGER NOT NULL,
                     data_inicio TIMESTAMP NOT NULL,
                     data_fim TIMESTAMP,
-                    quilometragem_inicial INTEGER NOT NULL,
-                    quilometragem_final INTEGER,
-                    destino TEXT NOT NULL,
-                    proposito TEXT NOT NULL,
-                    observacoes TEXT,
+                    quilometragem_inicial REAL NOT NULL,
+                    quilometragem_final REAL,
+                    destino_ou_finalidade TEXT NOT NULL,
                     FOREIGN KEY (veiculo_id) REFERENCES veiculos(id),
                     FOREIGN KEY (motorista_id) REFERENCES motoristas(id),
                     FOREIGN KEY (usuario_id) REFERENCES usuarios(id)
@@ -154,15 +150,12 @@ public class DatabaseConnection {
                 CREATE TABLE IF NOT EXISTS manutencoes (
                     id INTEGER PRIMARY KEY AUTOINCREMENT,
                     veiculo_id INTEGER NOT NULL,
-                    tipo TEXT NOT NULL CHECK (tipo IN ('PREVENTIVA', 'CORRETIVA', 'REVISAO')),
-                    descricao TEXT NOT NULL,
                     data_inicio DATE NOT NULL,
-                    data_fim DATE,
-                    quilometragem INTEGER,
-                    custo DECIMAL(10,2),
-                    oficina TEXT,
-                    status TEXT NOT NULL DEFAULT 'AGENDADA' CHECK (status IN ('AGENDADA', 'EM_ANDAMENTO', 'CONCLUIDA', 'CANCELADA')),
-                    observacoes TEXT,
+                    data_saida_prevista DATE,
+                    data_saida_real DATE,
+                    descricao_servico TEXT NOT NULL,
+                    custo_real REAL,
+                    nome_oficina TEXT,
                     data_criacao TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
                     FOREIGN KEY (veiculo_id) REFERENCES veiculos(id)
                 )
