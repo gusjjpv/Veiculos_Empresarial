@@ -7,6 +7,8 @@ import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.sql.ResultSet;
 import java.sql.Statement;
+import java.util.ArrayList;
+import java.util.List;
 
 public class MotoristaRepository {
     //salvar motorista no banco
@@ -67,4 +69,175 @@ public class MotoristaRepository {
             }
         }
     }
+
+    public Motorista buscarPorCnh(String cnh) {
+        String sql = "SELECT u.nome, u.user_name, u.senha, m.setor, m.cnh "
+                   + "FROM motoristas m "
+                   + "JOIN usuarios u ON m.usuario_id = u.id "
+                   + "WHERE m.cnh = ?";
+        
+        try (Connection conn = DatabaseConnection.getInstance().getConnection(); PreparedStatement pstmt = conn.prepareStatement(sql)) {
+
+            pstmt.setString(1, cnh);
+
+            try (ResultSet rs = pstmt.executeQuery()) {
+                if (rs.next()) {
+                    return criarMotoristaDoResultSet(rs);
+                }
+            }
+        } catch (SQLException e) {
+            System.err.println("Erro ao buscar motorista por CNH: " + e.getMessage());
+        }
+        return null;
+    }
+
+    public List<Motorista> listarTodos() {
+        String sql = "SELECT u.nome, u.user_name, u.senha, m.setor, m.cnh " + "FROM motoristas m " + "JOIN usuarios u ON m.usuario_id = u.id";
+        
+        List<Motorista> motoristas = new ArrayList<>();
+
+        try (Connection conn = DatabaseConnection.getInstance().getConnection();
+             Statement stmt = conn.createStatement();
+             ResultSet rs = stmt.executeQuery(sql)) {
+
+            while (rs.next()) {
+                motoristas.add(criarMotoristaDoResultSet(rs));
+            }
+        } catch (SQLException e) {
+            System.err.println("Erro ao listar motoristas: " + e.getMessage());
+        }
+        return motoristas;
+    }
+
+    public List<Motorista> buscarPorNome(String nome){
+        String sql = "SELECT u.nome, u.user_name, u.senha, m.setor, m.cnh "
+                   + "FROM motoristas m "
+                   + "JOIN usuarios u ON m.usuario_id = u.id "
+                   + "WHERE u.nome LIKE ?";
+        
+        List<Motorista> motoristas = new ArrayList<>();
+        
+        try (Connection conn = DatabaseConnection.getInstance().getConnection();
+             PreparedStatement pstmt = conn.prepareStatement(sql)) {
+
+            pstmt.setString(1, "%" + nome + "%");
+
+            try (ResultSet rs = pstmt.executeQuery()) {
+                while (rs.next()) {
+                    motoristas.add(criarMotoristaDoResultSet(rs));
+                }
+            }
+        } catch (SQLException e) {
+            System.err.println("Erro ao buscar motorista por nome: " + e.getMessage());
+        }
+        return motoristas;
+    }
+
+    private Motorista criarMotoristaDoResultSet(ResultSet rs) throws SQLException {
+        String nome = rs.getString("nome");
+        String username = rs.getString("user_name");
+        String senha = rs.getString("senha");
+        String setor = rs.getString("setor");
+        String cnh = rs.getString("cnh");
+        
+        return new Motorista(nome, username, senha, setor, cnh);
+    }
+
+    public void atualizar(Motorista motorista) {
+        String sqlUsuario = "UPDATE usuarios SET nome = ?, user_name = ?, senha = ? "
+                        + "WHERE id = (SELECT usuario_id FROM motoristas WHERE cnh = ?)";
+
+        String sqlMotorista = "UPDATE motoristas SET setor = ? WHERE cnh = ?";
+        
+        Connection conn = DatabaseConnection.getInstance().getConnection();
+
+        try {
+            conn.setAutoCommit(false);
+
+            try (PreparedStatement pstmtUsuario = conn.prepareStatement(sqlUsuario)) {
+                pstmtUsuario.setString(1, motorista.getNome());
+                pstmtUsuario.setString(2, motorista.getUsername());
+                pstmtUsuario.setString(3, motorista.getSenha());
+                pstmtUsuario.setString(4, motorista.getCnh());
+                pstmtUsuario.executeUpdate();
+            }
+
+            try (PreparedStatement pstmtMotorista = conn.prepareStatement(sqlMotorista)) {
+                pstmtMotorista.setString(1, motorista.getSetor());
+                pstmtMotorista.setString(2, motorista.getCnh());
+                pstmtMotorista.executeUpdate();
+            }
+
+            conn.commit();
+            System.out.println("Dados do motorista com CNH " + motorista.getCnh() + " atualizados com sucesso!");
+
+        } catch (SQLException e) {
+            System.err.println("Erro ao atualizar motorista, revertendo a transação.");
+            e.printStackTrace();
+            try {
+                conn.rollback();
+            } catch (SQLException rollbackEx) {
+                System.err.println("Erro crítico ao reverter a transação: " + rollbackEx.getMessage());
+            }
+        } finally {
+            try {
+                conn.setAutoCommit(true);
+            } catch (SQLException finalEx) {
+                System.err.println("Erro ao restaurar auto-commit: " + finalEx.getMessage());
+            }
+        }
+    }
+
+    public void remover(String cnh) {
+        String sqlSelectId = "SELECT usuario_id FROM motoristas WHERE cnh = ?";
+        String sqlDeleteMotorista = "DELETE FROM motoristas WHERE cnh = ?";
+        String sqlDeleteUsuario = "DELETE FROM usuarios WHERE id = ?";
+        
+        Connection conn = DatabaseConnection.getInstance().getConnection();
+        long usuarioId = -1;
+
+        try {
+            conn.setAutoCommit(false);
+            try (PreparedStatement pstmtSelect = conn.prepareStatement(sqlSelectId)) {
+                pstmtSelect.setString(1, cnh);
+                try (ResultSet rs = pstmtSelect.executeQuery()) {
+                    if (rs.next()) {
+                        usuarioId = rs.getLong("usuario_id");
+                    }
+                }
+            }
+
+            if (usuarioId == -1) {
+                throw new SQLException("Motorista com CNH " + cnh + " não encontrado, impossível remover.");
+            }
+
+            try (PreparedStatement pstmtMotorista = conn.prepareStatement(sqlDeleteMotorista)) {
+                pstmtMotorista.setString(1, cnh);
+                pstmtMotorista.executeUpdate();
+            }
+
+            try (PreparedStatement pstmtUsuario = conn.prepareStatement(sqlDeleteUsuario)) {
+                pstmtUsuario.setLong(1, usuarioId);
+                pstmtUsuario.executeUpdate();
+            }
+
+            conn.commit();
+            System.out.println("Motorista com CNH " + cnh + " removido com sucesso!");
+
+        } catch (SQLException e) {
+            System.err.println("Erro ao remover motorista, revertendo a transação: " + e.getMessage());
+            try {
+                conn.rollback();
+            } catch (SQLException rollbackEx) {
+                System.err.println("Erro crítico ao reverter a transação: " + rollbackEx.getMessage());
+            }
+        } finally {
+            try {
+                conn.setAutoCommit(true);
+            } catch (SQLException finalEx) {
+                System.err.println("Erro ao restaurar auto-commit: " + finalEx.getMessage());
+            }
+        }
+    }
+
 }
