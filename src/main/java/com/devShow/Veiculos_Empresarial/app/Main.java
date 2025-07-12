@@ -10,8 +10,9 @@ public class Main{
 
         //motoristaService.cadastrarMotorista("Thyago", "th.fb", "123", "carga leve", "12345678");
         //imprimirListaMotoristas();
-        motoristaService.atualizarDadosDeMotorista("33333", "Dinarte", "carga pesada", "dinart.filho", "321");
-        imprimirListaMotoristas();
+        //motoristaService.atualizarDadosDeMotorista("33333", "Dinarte", "carga pesada", "dinart.filho", "321");
+        //imprimirListaMotoristas();
+        System.out.println(motoristaService.buscarMotorista("33333"));
     }
 
     public static void imprimirListaMotoristas(){
