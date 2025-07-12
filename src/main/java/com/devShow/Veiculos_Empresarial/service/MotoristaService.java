@@ -7,21 +7,18 @@ import java.util.List;
 public class MotoristaService {
     private MotoristaRepository motoristaRepository = new MotoristaRepository();
 
+
     public void cadastrarMotorista(String nome, String userName, String senha, String setor, String cnh){
         if(motoristaRepository.buscarPorCnh(cnh) != null){
             System.err.println("ERRO: CNH JA CADASTRADA");
             return;
         }
-
+        
         Motorista novoMotorista = new Motorista(nome, userName, senha, setor, cnh);
         motoristaRepository.salvar(novoMotorista);
     }
-
-    public List<Motorista> listarTodosMotoristas() {
-        List<Motorista> listaMotoristas = motoristaRepository.listarTodos();
-        return listaMotoristas;
-    }
-
+    
+    
     public void atualizarDadosDeMotorista(String cnhDoMotorista, String novoNome, String novoSetor, String novoUsername, String novaSenha){
         Motorista motoristaParaAtualizar = motoristaRepository.buscarPorCnh(cnhDoMotorista);
 
@@ -38,5 +35,22 @@ public class MotoristaService {
         System.out.println("Dados novos: " + motoristaParaAtualizar);
 
         motoristaRepository.atualizar(motoristaParaAtualizar);
+    }
+
+
+    public Motorista buscarMotorista(String cnh){
+        Motorista motorista = motoristaRepository.buscarPorCnh(cnh);
+        return motorista;
+    }
+
+
+    public List<Motorista> listarTodosMotoristas() {
+        List<Motorista> listaMotoristas = motoristaRepository.listarTodos();
+        return listaMotoristas;
+    }
+
+
+    public void excluirMotorista(){
+        //implementar dps
     }
 }
