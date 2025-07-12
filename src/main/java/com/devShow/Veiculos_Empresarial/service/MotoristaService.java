@@ -1,55 +1,56 @@
 package main.java.com.devShow.Veiculos_Empresarial.service;
-
+import main.java.com.devShow.Veiculos_Empresarial.repository.MotoristaRepository;
 import main.java.com.devShow.Veiculos_Empresarial.model.Motorista;
 
-/**
- * Service para operações relacionadas a Motoristas
- * ETAPA 2: Apenas validações básicas, sem persistência
- */
+import java.util.List;
+
 public class MotoristaService {
+    private MotoristaRepository motoristaRepository = new MotoristaRepository();
 
-    /**
-     * Valida os dados de um motorista antes de cadastrar
-     */
-    public void validarMotorista(Motorista motorista) {
-        if (motorista == null) {
-            throw new IllegalArgumentException("Motorista não pode ser nulo");
+
+    public void cadastrarMotorista(String nome, String userName, String senha, String setor, String cnh){
+        if(motoristaRepository.buscarPorCnh(cnh) != null){
+            System.err.println("ERRO: CNH JA CADASTRADA");
+            return;
         }
         
-        if (motorista.getNome() == null || motorista.getNome().trim().isEmpty()) {
-            throw new IllegalArgumentException("Nome é obrigatório");
-        }
-        
-        if (motorista.getUsername() == null || motorista.getUsername().trim().isEmpty()) {
-            throw new IllegalArgumentException("Username é obrigatório");
-        }
-        
-        if (motorista.getSenha() == null || motorista.getSenha().trim().isEmpty()) {
-            throw new IllegalArgumentException("Senha é obrigatória");
-        }
-        
-        if (motorista.getCnh() == null || motorista.getCnh().trim().isEmpty()) {
-            throw new IllegalArgumentException("CNH é obrigatória");
-        }
-        
-        if (motorista.getSetor() == null || motorista.getSetor().trim().isEmpty()) {
-            throw new IllegalArgumentException("Setor é obrigatório");
+        Motorista novoMotorista = new Motorista(nome, userName, senha, setor, cnh);
+        motoristaRepository.salvar(novoMotorista);
+    }
+    
+    
+    public void atualizarDadosDeMotorista(String cnhDoMotorista, String novoNome, String novoSetor, String novoUsername, String novaSenha){
+        Motorista motoristaParaAtualizar = motoristaRepository.buscarPorCnh(cnhDoMotorista);
+
+        if(motoristaParaAtualizar == null){
+            System.err.println("ERRO: Motorista com CNH:" + cnhDoMotorista + " nao encontrado. Atualizacao falhou");
+            return;
         }
 
-        if (!validarFormatoCnh(motorista.getCnh())) {
-            throw new IllegalArgumentException("CNH deve ter 11 dígitos");
-        }
+        System.out.println("Dados antigos: " + motoristaParaAtualizar);
+        motoristaParaAtualizar.setNome(novoNome);
+        motoristaParaAtualizar.setUsername(novoUsername);
+        motoristaParaAtualizar.setSetor(novoSetor);
+        motoristaParaAtualizar.setSenha(novaSenha);
+        System.out.println("Dados novos: " + motoristaParaAtualizar);
+
+        motoristaRepository.atualizar(motoristaParaAtualizar);
     }
 
-    /**
-     * Valida se uma CNH tem formato correto
-     */
-    public boolean validarFormatoCnh(String cnh) {
-        if (cnh == null || cnh.trim().isEmpty()) {
-            return false;
-        }
-        
-        String cnhLimpa = cnh.replaceAll("[^0-9]", "");
-        return cnhLimpa.length() == 11;
+
+    public Motorista buscarMotorista(String cnh){
+        Motorista motorista = motoristaRepository.buscarPorCnh(cnh);
+        return motorista;
+    }
+
+
+    public List<Motorista> listarTodosMotoristas() {
+        List<Motorista> listaMotoristas = motoristaRepository.listarTodos();
+        return listaMotoristas;
+    }
+
+
+    public void excluirMotorista(){
+        //implementar dps
     }
 }
