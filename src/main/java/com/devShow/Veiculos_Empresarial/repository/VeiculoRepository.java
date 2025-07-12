@@ -2,7 +2,6 @@ package main.java.com.devShow.Veiculos_Empresarial.repository;
 
 import main.java.com.devShow.Veiculos_Empresarial.model.Veiculo;
 import main.java.com.devShow.Veiculos_Empresarial.database.DatabaseConnection;
-import main.java.com.devShow.Veiculos_Empresarial.model.StatusVeiculo;
 
 import java.sql.*;
 
