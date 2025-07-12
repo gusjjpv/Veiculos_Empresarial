@@ -1,7 +1,7 @@
 package app;
 
-import model.Veiculo;
-import model.StatusVeiculo;
+import main.java.com.devShow.Veiculos_Empresarial.model.Veiculo;
+import main.java.com.devShow.Veiculos_Empresarial.model.StatusVeiculo;
 import java.util.Date;
 import java.util.Calendar;
 
@@ -12,9 +12,9 @@ public class Main {
 
         // Cadastrando a frota inicial.
         System.out.println("\n[Cadastrando a frota inicial]");
-        Veiculo kwid = new Veiculo("DEF5678", "Kwid", "Renault", "2021", "Branco", StatusVeiculo.DISPONIVEL, 29500.0,
+        Veiculo kwid = new Veiculo("DEF5678", "Kwid", "Renault", 2021, "Branco", StatusVeiculo.DISPONIVEL, 29500.0,
                 new Date());
-        Veiculo mobi = new Veiculo("GHI9012", "Mobi", "Fiat", "2023", "Vermelho", StatusVeiculo.DISPONIVEL, 9990.0,
+        Veiculo mobi = new Veiculo("GHI9012", "Mobi", "Fiat", 2023, "Vermelho", StatusVeiculo.DISPONIVEL, 9990.0,
                 new Date());
         Veiculo.cadastrarVeiculo(kwid);
         Veiculo.cadastrarVeiculo(mobi);
@@ -62,7 +62,7 @@ public class Main {
                 "ABC1234",
                 "Onix",
                 "Chevrolet",
-                "2022",
+                2022,
                 "Preto",
                 StatusVeiculo.DISPONIVEL,
                 15000.5,

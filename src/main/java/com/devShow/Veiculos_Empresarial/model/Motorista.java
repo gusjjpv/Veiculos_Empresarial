@@ -36,9 +36,7 @@ public class Motorista extends Usuario {
     }
 
     public void atualizarDadosDeMotorista() {
-    }
-
-    public void atualizarDadoDeMotorista() {
+        // TODO: Implementar lógica de atualização
     }
 
     public void buscarMotorista() {
