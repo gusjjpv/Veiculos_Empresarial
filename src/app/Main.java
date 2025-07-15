@@ -23,7 +23,7 @@ public class Main {
         // Um motorista retira um veículo viagem.
         System.out.println("\n[Retirada de veículo para viagem]");
         System.out.println("Veículos disponíveis: " + Veiculo.listarVeiculosDisponiveis());
-        Veiculo veiculoParaViagem = Veiculo.buscarVeiculoPorPlaca("DEF5678");
+        Veiculo veiculoParaViagem = Veiculo.buscarVeiculoPorPlaca("DEF5678").orElseThrow(() -> new RuntimeException("Veículo não encontrado"));
         veiculoParaViagem.usarVeiculo();
         System.out.println("Kwid retirado. Status atual: " + veiculoParaViagem.getStatus());
         System.out.println("Disponíveis agora: " + Veiculo.listarVeiculosDisponiveis());
