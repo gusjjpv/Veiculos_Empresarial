@@ -17,6 +17,7 @@ public class Veiculo {
     private StatusVeiculo status;
     private double quilometragemAtual;
     private Date ultimaDataDeRevisao;
+    private int id;
 
     public Veiculo(String placa, String modelo, String marca, int ano, String cor,
             StatusVeiculo status, double quilometragemAtual, Date ultimaDataDeRevisao) {
@@ -76,6 +77,14 @@ public class Veiculo {
 
     public void setStatus(StatusVeiculo status) {
         this.status = status;
+    }
+
+    public int getId() {
+        return id;
+    }
+
+    public void setId(int id) {
+        this.id = id;
     }
 
     public double getQuilometragemAtual() {

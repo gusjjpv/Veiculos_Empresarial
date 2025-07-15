@@ -14,6 +14,7 @@ public class Manutencao {
     private double custoReal;
     private String nomeOficina;
     private Veiculo veiculo;
+    private int id;
 
     public Manutencao(Veiculo veiculo, String descricaoServico, LocalDate dataEntrada, LocalDate dataSaidaPrevista,
             String nomeOficina) {
@@ -80,6 +81,14 @@ public class Manutencao {
 
     public void setVeiculo(Veiculo veiculo) {
         this.veiculo = veiculo;
+    }
+
+    public int getId() {
+        return id;
+    }
+
+    public void setId(int id) {
+        this.id = id;
     }
 
     public static void iniciarManutencao(Veiculo veiculo, String descricao, LocalDate dataEntrada,
