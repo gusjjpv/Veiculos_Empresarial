@@ -65,7 +65,7 @@ public class VeiculoRepository {
         int ano = rs.getInt("ano");
         String cor = rs.getString("cor");
         StatusVeiculo status = StatusVeiculo.valueOf(rs.getString("status"));
-        double quilometragemAtual = rs.getDouble("quilometragem");
+        double quilometragemAtual = rs.getDouble("quilometragem_Atual");
         Date ultimaDataDeRevisao = rs.getDate("ultima_data_revisao");
         Veiculo veiculo = new Veiculo(placa, modelo, marca, ano, cor, status, quilometragemAtual, ultimaDataDeRevisao);
         veiculo.setId(rs.getInt("id"));

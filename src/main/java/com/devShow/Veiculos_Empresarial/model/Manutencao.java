@@ -1,22 +1,22 @@
 package main.java.com.devShow.Veiculos_Empresarial.model;
 
-import java.time.LocalDate;
+import java.util.Date;
 import java.util.ArrayList;
 import java.util.List;
 
 public class Manutencao {
     private static List<Manutencao> historicoGeral = new ArrayList<>();
 
-    private LocalDate dataEntrada;
-    private LocalDate dataSaidaPrevista;
-    private LocalDate dataSaidaReal;
+    private Date dataEntrada;
+    private Date dataSaidaPrevista;
+    private Date dataSaidaReal;
     private String descricaoServico;
     private double custoReal;
     private String nomeOficina;
     private Veiculo veiculo;
     private int id;
 
-    public Manutencao(Veiculo veiculo, String descricaoServico, LocalDate dataEntrada, LocalDate dataSaidaPrevista,
+    public Manutencao(Veiculo veiculo, String descricaoServico, Date dataEntrada, Date dataSaidaPrevista,
             String nomeOficina) {
         this.veiculo = veiculo;
         this.descricaoServico = descricaoServico;
@@ -27,27 +27,27 @@ public class Manutencao {
         this.custoReal = 0.0;
     }
 
-    public LocalDate getDataEntrada() {
+    public Date getDataEntrada() {
         return dataEntrada;
     }
 
-    public void setDataEntrada(LocalDate dataEntrada) {
+    public void setDataEntrada(Date dataEntrada) {
         this.dataEntrada = dataEntrada;
     }
 
-    public LocalDate getDataSaidaPrevista() {
+    public Date getDataSaidaPrevista() {
         return dataSaidaPrevista;
     }
 
-    public void setDataSaidaPrevista(LocalDate dataSaidaPrevista) {
+    public void setDataSaidaPrevista(Date dataSaidaPrevista) {
         this.dataSaidaPrevista = dataSaidaPrevista;
     }
 
-    public LocalDate getDataSaidaReal() {
+    public Date getDataSaidaReal() {
         return dataSaidaReal;
     }
 
-    public void setDataSaidaReal(LocalDate dataSaidaReal) {
+    public void setDataSaidaReal(Date dataSaidaReal) {
         this.dataSaidaReal = dataSaidaReal;
     }
 
@@ -91,8 +91,8 @@ public class Manutencao {
         this.id = id;
     }
 
-    public static void iniciarManutencao(Veiculo veiculo, String descricao, LocalDate dataEntrada,
-            LocalDate dataPrevista, String oficina) {
+    public static void iniciarManutencao(Veiculo veiculo, String descricao, Date dataEntrada,
+            Date dataPrevista, String oficina) {
         if (veiculo.getStatus() != StatusVeiculo.DISPONIVEL) {
             System.out.println("ERRO: Veículo " + veiculo.getPlaca() + " não está disponível para manutenção.");
             return;
@@ -105,7 +105,7 @@ public class Manutencao {
         System.out.println("Manutenção iniciada para o veículo " + veiculo.getPlaca());
     }
 
-    public static void concluirManutencao(Veiculo veiculo, LocalDate dataSaidaReal, double custo) {
+    public static void concluirManutencao(Veiculo veiculo, Date dataSaidaReal, double custo) {
         Manutencao manutencaoAberta = historicoGeral.stream()
                 .filter(m -> m.getVeiculo().equals(veiculo) && m.getDataSaidaReal() == null)
                 .findFirst()
