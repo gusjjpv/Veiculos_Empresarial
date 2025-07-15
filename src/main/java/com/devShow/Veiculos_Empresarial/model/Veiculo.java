@@ -1,12 +1,11 @@
 package main.java.com.devShow.Veiculos_Empresarial.model;
 
 import java.util.Date;
-import java.time.LocalDate;
-import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
 public class Veiculo {
@@ -132,20 +131,20 @@ public class Veiculo {
 
     public boolean verificarNecessidadeRevisao() {
         final double INTERVALO_KM_REVISAO = 10000.0;
-        final long INTERVALO_MESES_REVISAO = 6;
-        double kmUltimaRevisao = this.quilometragemAtual > INTERVALO_KM_REVISAO ? this.quilometragemAtual - INTERVALO_KM_REVISAO : 0;
+        final long INTERVALO_DIAS_REVISAO = 180;
 
+        double kmUltimaRevisao = this.quilometragemAtual > INTERVALO_KM_REVISAO ? this.quilometragemAtual - INTERVALO_KM_REVISAO : 0;
         boolean precisaPorKm = (this.quilometragemAtual - kmUltimaRevisao) >= INTERVALO_KM_REVISAO;
+        
         boolean precisaPorTempo = false;
         if (this.ultimaDataDeRevisao != null) {
-            long mesesDesdeUltimaRevisao = ChronoUnit.MONTHS.between(
-                this.ultimaDataDeRevisao.toInstant().atZone(java.time.ZoneId.systemDefault()).toLocalDate(),
-                LocalDate.now()
-            );
-            precisaPorTempo = mesesDesdeUltimaRevisao >= INTERVALO_MESES_REVISAO;
+            long diffEmMillis = new Date().getTime() - this.ultimaDataDeRevisao.getTime();
+            long diasDesdeUltimaRevisao = TimeUnit.DAYS.convert(diffEmMillis, TimeUnit.MILLISECONDS);
+            precisaPorTempo = diasDesdeUltimaRevisao >= INTERVALO_DIAS_REVISAO;
         } else {
             precisaPorTempo = true; 
         }
+
         return precisaPorKm || precisaPorTempo;
     }
 
