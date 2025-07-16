@@ -3,15 +3,11 @@ package main.java.com.devShow.Veiculos_Empresarial.model;
 import java.util.Date;
 import java.time.LocalDate;
 import java.time.temporal.ChronoUnit;
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Objects;
-import java.util.Optional;
-import java.util.stream.Collectors;
 
 public class Veiculo {
 
-    private static List<Veiculo> frota = new ArrayList<>();
+    // private static List<Veiculo> frota = new ArrayList<>();
 
     private String placa;
     private String modelo;
@@ -23,6 +19,7 @@ public class Veiculo {
     private Date ultimaDataDeRevisao;
     private int id;
 
+    // Construtor para criar novo veículo (sem ID, o ID será gerado pelo banco)
     public Veiculo(String placa, String modelo, String marca, int ano, String cor,
             StatusVeiculo status, double quilometragemAtual, Date ultimaDataDeRevisao) {
         this.placa = placa;
@@ -34,6 +31,21 @@ public class Veiculo {
         this.quilometragemAtual = quilometragemAtual;
         this.ultimaDataDeRevisao = ultimaDataDeRevisao;
     }
+
+    // NOVO CONSTRUTOR: Para carregar veículo do banco (com ID)
+    public Veiculo(int id, String placa, String modelo, String marca, int ano, String cor,
+                   StatusVeiculo status, double quilometragemAtual, Date ultimaDataDeRevisao) {
+        this.id = id; // Inicializa o ID
+        this.placa = placa;
+        this.modelo = modelo;
+        this.marca = marca;
+        this.ano = ano;
+        this.cor = cor;
+        this.status = status;
+        this.quilometragemAtual = quilometragemAtual;
+        this.ultimaDataDeRevisao = ultimaDataDeRevisao;
+    }
+
 
     public String getPlaca() {
         return placa;
@@ -147,48 +159,6 @@ public class Veiculo {
             precisaPorTempo = true; 
         }
         return precisaPorKm || precisaPorTempo;
-    }
-
-    public static boolean cadastrarVeiculo(Veiculo veiculo) {
-        if (buscarVeiculoPorPlaca(veiculo.getPlaca()) != null) {
-            System.err.println("Erro: Veículo com a placa " + veiculo.getPlaca() + " já existe na frota.");
-            return false;
-        }
-        frota.add(veiculo);
-        System.out.println("Veículo " + veiculo.getPlaca() + " cadastrado com sucesso.");
-        return true;
-    }
-
-    public static boolean atualizarVeiculo(Veiculo veiculoAtualizado) {
-        for (int i = 0; i < frota.size(); i++) {
-            if (frota.get(i).getPlaca().equals(veiculoAtualizado.getPlaca())) {
-                frota.set(i, veiculoAtualizado);
-                System.out.println("Dados do veículo " + veiculoAtualizado.getPlaca() + " atualizados.");
-                return true;
-            }
-        }
-        System.err.println("Erro: Veículo com a placa " + veiculoAtualizado.getPlaca() + " não encontrado para atualização.");
-        return false;
-    }
-
-    public static void excluirVeiculo(String placa) {
-        frota.removeIf(v -> v.getPlaca().equals(placa));
-    }
-
-    public static List<Veiculo> listarVeiculos() {
-        return new ArrayList<>(frota);
-    }
-
-    public static List<Veiculo> listarVeiculosDisponiveis() {
-        return frota.stream()
-                .filter(v -> v.getStatus() == StatusVeiculo.DISPONIVEL)
-                .collect(Collectors.toList());
-    }
-
-    public static Optional<Veiculo> buscarVeiculoPorPlaca(String placa) {
-        return frota.stream()
-                .filter(v -> v.getPlaca().equals(placa))
-                .findFirst();
     }
 
     @Override
