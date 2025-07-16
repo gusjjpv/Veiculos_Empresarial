@@ -143,6 +143,54 @@ public class MotoristaRepository {
         return new Motorista(nome, username, senha, setor, cnh);
     }
 
+    /**
+     * Busca um motorista pelo seu ID.
+     * @param id O ID do motorista a ser buscado.
+     * @return O objeto Motorista encontrado, ou null se não existir.
+     */
+    public Motorista buscarPorId(int id) {
+        String sql = "SELECT u.id as usuario_id, u.nome, u.user_name, u.senha, u.tipo, u.ativo as usuario_ativo, " +
+                     "m.id as motorista_id, m.setor, m.cnh, m.ativo as motorista_ativo " +
+                     "FROM motoristas m " +
+                     "JOIN usuarios u ON m.usuario_id = u.id " +
+                     "WHERE m.id = ?";
+        
+        try (Connection conn = DatabaseConnection.getInstance().getConnection();
+             PreparedStatement pstmt = conn.prepareStatement(sql)) {
+
+            pstmt.setInt(1, id);
+
+            try (ResultSet rs = pstmt.executeQuery()) {
+                if (rs.next()) {
+                    return criarMotoristaCompletoDoResultSet(rs);
+                }
+            }
+        } catch (SQLException e) {
+            System.err.println("Erro ao buscar motorista por ID: " + e.getMessage());
+        }
+        return null;
+    }
+
+    /**
+     * Cria um objeto Motorista completo com todos os dados do banco de dados.
+     * Usado para carregar motoristas com IDs e status de ativo.
+     */
+    private Motorista criarMotoristaCompletoDoResultSet(ResultSet rs) throws SQLException {
+        int motoristaId = rs.getInt("motorista_id");
+        int usuarioId = rs.getInt("usuario_id");
+        String nome = rs.getString("nome");
+        String username = rs.getString("user_name");
+        String senha = rs.getString("senha");
+        boolean ehAdm = "ADMIN".equals(rs.getString("tipo"));
+        boolean usuarioAtivo = rs.getBoolean("usuario_ativo");
+        String setor = rs.getString("setor");
+        String cnh = rs.getString("cnh");
+        boolean motoristaAtivo = rs.getBoolean("motorista_ativo");
+        
+        return new Motorista(motoristaId, nome, username, senha, ehAdm, usuarioAtivo, 
+                           setor, cnh, usuarioId, motoristaAtivo);
+    }
+
     public void atualizar(Motorista motorista) {
         String sqlUsuario = "UPDATE usuarios SET nome = ?, user_name = ?, senha = ? "
                         + "WHERE id = (SELECT usuario_id FROM motoristas WHERE cnh = ?)";
@@ -238,6 +286,34 @@ public class MotoristaRepository {
                 System.err.println("Erro ao restaurar auto-commit: " + finalEx.getMessage());
             }
         }
+    }
+
+    /**
+     * Busca um motorista pelo seu CNH, incluindo o ID do motorista.
+     * @param cnh O CNH do motorista a ser buscado.
+     * @return O objeto Motorista encontrado com ID, ou null se não existir.
+     */
+    public Motorista buscarPorCnhComId(String cnh) {
+        String sql = "SELECT u.id as usuario_id, u.nome, u.user_name, u.senha, u.tipo, u.ativo as usuario_ativo, " +
+                     "m.id as motorista_id, m.setor, m.cnh, m.ativo as motorista_ativo " +
+                     "FROM motoristas m " +
+                     "JOIN usuarios u ON m.usuario_id = u.id " +
+                     "WHERE m.cnh = ?";
+        
+        try (Connection conn = DatabaseConnection.getInstance().getConnection();
+             PreparedStatement pstmt = conn.prepareStatement(sql)) {
+
+            pstmt.setString(1, cnh);
+
+            try (ResultSet rs = pstmt.executeQuery()) {
+                if (rs.next()) {
+                    return criarMotoristaCompletoDoResultSet(rs);
+                }
+            }
+        } catch (SQLException e) {
+            System.err.println("Erro ao buscar motorista por CNH com ID: " + e.getMessage());
+        }
+        return null;
     }
 
 }
