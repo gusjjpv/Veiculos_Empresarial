@@ -87,7 +87,7 @@ public class VeiculoRepository {
 
     
 
-        private Veiculo criarVeiculoDoResultSet(ResultSet rs) throws SQLException {
+    private Veiculo criarVeiculoDoResultSet(ResultSet rs) throws SQLException {
         int id = rs.getInt("id"); 
         String placa = rs.getString("placa");
         String modelo = rs.getString("modelo");
@@ -96,8 +96,27 @@ public class VeiculoRepository {
         String cor = rs.getString("cor");
         double quilometragemAtual = rs.getDouble("quilometragem"); 
         StatusVeiculo status = StatusVeiculo.valueOf(rs.getString("status"));
-        Long ultimaDataDeRevisaoLong = rs.getObject("ultima_data_revisao", Long.class); // Coluna 'ultima_data_revisao'
-        Date ultimaDataDeRevisao = (ultimaDataDeRevisaoLong != null) ? new Date(ultimaDataDeRevisaoLong) : null;
+        
+        // Tratamento mais flexível para a data de revisão
+        Date ultimaDataDeRevisao = null;
+        try {
+            // Tenta primeiro como Date do SQL
+            java.sql.Date sqlDate = rs.getDate("ultima_data_revisao");
+            if (sqlDate != null) {
+                ultimaDataDeRevisao = new Date(sqlDate.getTime());
+            }
+        } catch (SQLException e) {
+            // Se falhar, tenta como Long (timestamp)
+            try {
+                long timestamp = rs.getLong("ultima_data_revisao");
+                if (!rs.wasNull()) {
+                    ultimaDataDeRevisao = new Date(timestamp);
+                }
+            } catch (SQLException e2) {
+                // Se falhar também, deixa como null
+                ultimaDataDeRevisao = null;
+            }
+        }
 
         // CORRIGIDO: Usando o construtor de Veiculo que recebe o ID
         return new Veiculo(id, placa, modelo, marca, ano, cor, status, quilometragemAtual, ultimaDataDeRevisao);
