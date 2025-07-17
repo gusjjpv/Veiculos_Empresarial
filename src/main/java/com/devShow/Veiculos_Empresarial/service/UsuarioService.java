@@ -1,7 +1,6 @@
 package main.java.com.devShow.Veiculos_Empresarial.service;
 
 import main.java.com.devShow.Veiculos_Empresarial.repository.UsuarioRepository;
-import main.java.com.devShow.Veiculos_Empresarial.service.*;
 import main.java.com.devShow.Veiculos_Empresarial.model.*;
 
 import java.util.List;
@@ -11,14 +10,14 @@ public class UsuarioService {
     UsuarioRepository usuarioRepository = new UsuarioRepository();
 
 
-    public void cadastrarUsuario(String nome, String username, String senha){
+    public void cadastrarUsuario(String nome, String username, String senha, boolean ehAdm){
         Usuario usuarioExistente = usuarioRepository.buscarPorUsername(username);
         if(usuarioExistente != null){
             System.err.println("ERRO no Cadastro: usuario " + username + " ja existe");
             return;
         }
 
-        Usuario novoUsuario = new Usuario(nome, username, senha, true);
+        Usuario novoUsuario = new Usuario(nome, username, senha, ehAdm);
         usuarioRepository.salvar(novoUsuario);
     }
 

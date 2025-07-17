@@ -100,7 +100,7 @@ public class Manutencao {
         Manutencao novaManutencao = new Manutencao(veiculo, descricao, dataEntrada, dataPrevista, oficina);
         historicoGeral.add(novaManutencao);
 
-        veiculo.setStatus(StatusVeiculo.EM_MANUTENCAO);
+        veiculo.setStatus(StatusVeiculo.MANUTENCAO);
 
         System.out.println("Manutenção iniciada para o veículo " + veiculo.getPlaca());
     }

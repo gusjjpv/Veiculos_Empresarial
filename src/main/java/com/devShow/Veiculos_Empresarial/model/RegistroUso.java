@@ -1,7 +1,6 @@
 package main.java.com.devShow.Veiculos_Empresarial.model;
 
 import java.util.Date;
-import java.util.List;
 
 public class RegistroUso {
     // Atributos
@@ -40,6 +39,21 @@ public class RegistroUso {
         this.destinoOuFinalidade = destinoOuFinalidade;
     }
 
+    // Construtor para compatibilidade com RegistroUsoRepository (com Usuario explícito)
+    public RegistroUso(int id, Veiculo veiculo, Motorista motorista, Usuario usuario, Date dataHoraSaida, 
+                      Date dataHoraRetorno, double kmSaida, double kmRetorno, 
+                      String destinoOuFinalidade) {
+        this.id = id;
+        this.veiculo = veiculo;
+        this.motorista = motorista;
+        this.dataHoraSaida = dataHoraSaida;
+        this.dataHoraRetorno = dataHoraRetorno;
+        this.kmSaida = kmSaida;
+        this.kmRetorno = kmRetorno;
+        this.destinoOuFinalidade = destinoOuFinalidade;
+        // O usuário já está implícito no motorista, então não precisamos armazenar separadamente
+    }
+
     public int getId() {
         return id;
     }
@@ -70,6 +84,15 @@ public class RegistroUso {
 
     public String getDestinoOuFinalidade() {
         return destinoOuFinalidade;
+    }
+
+    /**
+     * Retorna o objeto Usuario associado a este registro.
+     * O usuário vem do motorista associado ao registro.
+     * @return O objeto Usuario do motorista.
+     */
+    public Usuario getUsuario() {
+        return (motorista != null) ? motorista.getUsuario() : null;
     }
 
     public void setId(int id) {
@@ -112,32 +135,6 @@ public class RegistroUso {
         return 0.0;
     }
 
-    // Métodos de gerenciamento (esqueletos temporários - serão movidos para service/repository)
-    public void registrarSaida(Motorista motorista, double kmSaida) {
-        // TODO: Implementar na camada service - envolve lógica de negócio
-    }
-
-    public void registrarRetorno(double kmRetorno) {
-        // TODO: Implementar na camada service - envolve lógica de negócio
-    }
-
-    public void finalizarUso(Date dataHoraRetorno, double kmRetorno) {
-        // TODO: Implementar na camada service - envolve lógica de negócio
-    }
-
-    public static RegistroUso buscarRegistroUso(int id) {
-        // TODO: Será movido para repository
-        return null;
-    }
-
-    public static List<RegistroUso> listarTodosRegistroUso() {
-        // TODO: Será movido para repository
-        return null;
-    }
-
-    public static void excluiRegistroUso(int id) {
-        // TODO: Será movido para repository
-    }
 
     @Override
     public String toString() {
