@@ -5,7 +5,9 @@ public class Motorista extends Usuario {
     private String cnh;
     private int usuarioId; 
     private boolean ativoMotorista;
-    private int id; 
+    private int id;  
+    // esses novos campos sao para compatibilidade com o banco de dados
+    // 'usuarioId' é a FK para 'usuarios.id' e 'ativoMotorista' é o campo correspondente na tabela 'motoristas'
 
 
     public Motorista(String nome, String username, String senha, String setor, String cnh) {
@@ -26,6 +28,7 @@ public class Motorista extends Usuario {
         this.usuarioId = usuarioId; // FK para 'usuarios.id'
         this.ativoMotorista = ativoMotorista; // Ativo da tabela 'motoristas'
     }
+
 
     public int getId() {
         return id;
