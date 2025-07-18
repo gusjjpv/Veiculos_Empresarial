@@ -135,8 +135,15 @@ public class UsuarioService {
         manutencaoService.concluirManutencao(placa, horaSaida, custoReal);
     }
 
+    public void excluirManutencao(Usuario admin, String placaVeiculo) {
+        if (admin == null || !admin.getEhAdm()) {
+            System.err.println("ACESSO NEGADO: Apenas administradores podem excluir manutenções.");
+            return;
+        }
+        
+        manutencaoService.excluirManutencao(placaVeiculo);
+    }
+
     //metodos de registroUso
-
-
-
+    
 }
