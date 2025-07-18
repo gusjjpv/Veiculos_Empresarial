@@ -74,7 +74,7 @@ public class RegistroUsoService {
             if (idRegistro > 0) {
                 // Atualiza status do veículo para EM_USO
                 veiculo.setStatus(StatusVeiculo.EM_USO);
-                veiculoRepository.update(veiculo);
+                veiculoRepository.atualizar(veiculo);
                 
                 System.out.println("✅ Uso do veículo iniciado com sucesso!");
                 System.out.println("   Registro ID: " + idRegistro);
@@ -127,7 +127,7 @@ public class RegistroUsoService {
                 Veiculo veiculo = registro.getVeiculo();
                 veiculo.setQuilometragemAtual(quilometragemFinal);
                 veiculo.setStatus(StatusVeiculo.DISPONIVEL);
-                veiculoRepository.update(veiculo);
+                veiculoRepository.atualizar(veiculo);
                 
                 double kmRodados = quilometragemFinal - registro.getKmSaida();
                 
