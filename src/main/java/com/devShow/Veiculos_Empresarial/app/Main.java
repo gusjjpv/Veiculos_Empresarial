@@ -47,9 +47,9 @@ public class Main{
                     limparTela();
                     System.out.println("Login Bem-sucedido!");
                     if(novoLogin.getEhAdm()){
-                        menuAdmin(novoLogin);
+                        menuAdmin(novoLogin, input);
                     }else{
-                        menuMotorista(novoLogin);
+                        menuMotorista(novoLogin, input);
                     }
                 }
             }else if(opcao == 0){
@@ -64,24 +64,23 @@ public class Main{
     public static void menu(){
     }
 
-    public static void menuAdmin(Usuario admin){
+    public static void menuAdmin(Usuario admin, Scanner input){
         int opcao;
-        Scanner input = new Scanner(System.in);
         do {
             System.out.println("AREA ADMINISTRATIVA\n1. Gerenciamento de Motoristas\n2. Gerenciar Veiculos\n3. Controlar manutenção\n4. Visualizar Registros de uso\n0. Sair");
             opcao = input.nextInt();
             if(opcao == 1){
                 limparTela();
-                menuGerenciamentoDeMotorista(admin);
+                menuGerenciamentoDeMotorista(admin, input);
             }else if(opcao == 2){
                 limparTela();
-                menuGerenciamentoVeiculos(admin);
+                menuGerenciamentoVeiculos(admin, input);
             }else if(opcao == 3){
                 limparTela();
-                menuControleDeManutencao(admin);
+                menuControleDeManutencao(admin, input);
             }else if(opcao == 4){
                 limparTela();
-                menuRegistros();
+                menuRegistros(input);
             }else if(opcao == 0){
                 limparTela();
                 break;
@@ -90,12 +89,10 @@ public class Main{
                 System.err.println("ERRO: opcao invalida");
             }
         } while (opcao != 0);
-        input.close();
     }
 
-    public static void menuMotorista(Usuario motorista){
+    public static void menuMotorista(Usuario motorista, Scanner input){
         int opcao;
-        Scanner input = new Scanner(System.in);
         String placa, destino;
         int idRegistro;
         double quilometragemFinal;
@@ -186,13 +183,11 @@ public class Main{
                     break;
             }
         } while (opcao != 0);
-        input.close();
     }
 
 
-    public static void menuGerenciamentoDeMotorista(Usuario admin){
+    public static void menuGerenciamentoDeMotorista(Usuario admin, Scanner input){
         int opcao;
-        Scanner input = new Scanner(System.in);
         String nome, username, senha, setor, cnh;
         UsuarioService usuarioService = new UsuarioService();
         do {
@@ -247,13 +242,11 @@ public class Main{
                 System.err.println("ERRO: opcao invalida");
             }
         } while (opcao != 0);
-        input.close();
     }
 
 
-    public static void menuGerenciamentoVeiculos(Usuario admin){
+    public static void menuGerenciamentoVeiculos(Usuario admin, Scanner input){
         int opcao;
-        Scanner input = new Scanner(System.in);
         String placa, modelo, marca, cor;
         int ano;
         double quilometragem;
@@ -328,12 +321,10 @@ public class Main{
                     break;
             }
         } while (opcao != 0);
-        input.close();
     }
 
-    public static void menuControleDeManutencao(Usuario admin){
+    public static void menuControleDeManutencao(Usuario admin, Scanner input){
         int opcao;
-        Scanner input = new Scanner(System.in);
         String placa, descricao, oficina;
         double custo;
         int dia, mes, ano;
@@ -432,13 +423,11 @@ public class Main{
                     break;
             }
         } while (opcao != 0);
-        input.close();
     }
 
 
-    public static void menuRegistros(){
+    public static void menuRegistros(Scanner input){
         int opcao;
-        Scanner input = new Scanner(System.in);
         String placa, cnh;
         int idRegistro;
         double quilometragemFinal;
@@ -576,7 +565,6 @@ public class Main{
                     break;
             }
         } while (opcao != 0);
-        input.close();
     }
 
     public static void limparTela() {
