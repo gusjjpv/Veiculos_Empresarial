@@ -3,12 +3,15 @@ package main.java.com.devShow.Veiculos_Empresarial.service;
 import main.java.com.devShow.Veiculos_Empresarial.repository.UsuarioRepository;
 import main.java.com.devShow.Veiculos_Empresarial.model.*;
 
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Date;
 
 public class UsuarioService {
     MotoristaService motortistaService = new MotoristaService();
     UsuarioRepository usuarioRepository = new UsuarioRepository();
     VeiculoService veiculoService = new VeiculoService();
+    ManutencaoService manutencaoService = new ManutencaoService();
 
     public void cadastrarUsuario(String nome, String username, String senha, boolean ehAdm){
         Usuario usuarioExistente = usuarioRepository.buscarPorUsername(username);
@@ -102,7 +105,35 @@ public class UsuarioService {
     }
 
     //metodos de manutencao
+    public List<Manutencao> listarManutencao(Usuario admin){
+        if(!admin.getEhAdm()){
+            return new ArrayList<>();
+        }
 
+        return manutencaoService.listarTodas();
+    }
+
+    
+    public void iniciarManutencao(Usuario admin, String placaVeiculo, String descricaoServico, String nomeOficina, Date dataSaidaPrevista) {
+        if (admin == null || !admin.getEhAdm()) {
+            System.err.println("ACESSO NEGADO: Apenas administradores podem iniciar manutenções.");
+            return;
+        }
+
+        manutencaoService.iniciarManutencao(placaVeiculo, descricaoServico, nomeOficina, dataSaidaPrevista);
+    }
+
+
+    public void concluirManutencao(Usuario admin, String placa, double custoReal){
+        if(!admin.getEhAdm()){
+            System.err.println("ACESSO NEGADO: Apenas administradores podem iniciar manutenções.");
+            return;
+        }
+
+        Date horaSaida = new Date();
+
+        manutencaoService.concluirManutencao(placa, horaSaida, custoReal);
+    }
 
     //metodos de registroUso
 
