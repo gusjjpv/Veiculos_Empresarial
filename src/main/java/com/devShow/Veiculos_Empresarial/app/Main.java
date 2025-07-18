@@ -410,7 +410,9 @@ public class Main{
                     
                 case 4:
                     limparTela();
-                    //excluir
+                    System.out.print("PLACA DO VEÍCULO: ");
+                    placa = input.nextLine();
+                    usuarioService.excluirManutencao(admin, placa);
                     break;
                     
                 case 0:
