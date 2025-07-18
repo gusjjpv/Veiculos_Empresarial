@@ -8,7 +8,6 @@ import java.util.List;
 import java.time.LocalDate;
 
 public class Main{
-    // Services globais para uso em toda a aplicação
     private static UsuarioService usuarioService = new UsuarioService();
     private static MotoristaService motoristaService = new MotoristaService();
     private static VeiculoService veiculoService = new VeiculoService();
@@ -79,7 +78,7 @@ public class Main{
                 menuGerenciamentoVeiculos(admin);
             }else if(opcao == 3){
                 limparTela();
-                menuControleDeManutencao();
+                menuControleDeManutencao(admin);
             }else if(opcao == 4){
                 limparTela();
                 menuRegistros();
@@ -332,7 +331,7 @@ public class Main{
         input.close();
     }
 
-    public static void menuControleDeManutencao(){
+    public static void menuControleDeManutencao(Usuario admin){
         int opcao;
         Scanner input = new Scanner(System.in);
         String placa, descricao, oficina;
@@ -341,12 +340,7 @@ public class Main{
         
         do {
             System.out.print("===== CONTROLE DE MANUTENÇÃO =====\n");
-            System.out.print("1. INICIAR MANUTENÇÃO\n");
-            System.out.print("2. FINALIZAR MANUTENÇÃO\n");
-            System.out.print("3. VERIFICAR SE VEÍCULO PODE ENTRAR EM MANUTENÇÃO\n");
-            System.out.print("4. VERIFICAR SE VEÍCULO ESTÁ EM MANUTENÇÃO\n");
-            System.out.print("5. RELATÓRIO DE MANUTENÇÕES\n");
-            System.out.print("0. VOLTAR\n>>");
+            System.out.print("1. INICIAR MANUTENÇÃO\n2. FINALIZAR MANUTENÇÃO\n3. LISTAR MANUTENCAO\n4. EXCLUIR MANUTENCAO\n0. VOLTAR\n>>");
             opcao = input.nextInt();
             input.nextLine();
             
@@ -381,11 +375,12 @@ public class Main{
                         break;
                     }
                     
-                    if(manutencaoService.iniciarManutencao(placa, descricao, oficina, dataPrevista)) {
-                        System.out.println("✅ Manutenção iniciada com sucesso!");
-                    } else {
-                        System.out.println("❌ Erro ao iniciar manutenção!");
-                    }
+                    usuarioService.iniciarManutencao(admin, placa, descricao, oficina, null);
+                    // if(manutencaoService.iniciarManutencao(placa, descricao, oficina, null)) {
+                    //     System.out.println("✅ Manutenção iniciada com sucesso!");
+                    // } else {
+                    //     System.out.println("❌ Erro ao iniciar manutenção!");
+                    // }
                     System.out.println("Pressione ENTER para continuar...");
                     input.nextLine();
                     break;
@@ -398,50 +393,33 @@ public class Main{
                     custo = input.nextDouble();
                     input.nextLine();
                     
-                    if(manutencaoService.finalizarManutencao(placa, custo)) {
-                        System.out.println("✅ Manutenção finalizada com sucesso!");
-                    } else {
-                        System.out.println("❌ Erro ao finalizar manutenção!");
-                    }
+                    usuarioService.concluirManutencao(admin, placa, custo);
+                    // if(usu) {
+                    //     System.out.println("✅ Manutenção finalizada com sucesso!");
+                    // } else {
+                    //     System.out.println("❌ Erro ao finalizar manutenção!");
+                    // }
                     System.out.println("Pressione ENTER para continuar...");
                     input.nextLine();
                     break;
-                    
                 case 3:
                     limparTela();
-                    System.out.print("PLACA DO VEÍCULO: ");
-                    placa = input.nextLine();
-                    
-                    if(manutencaoService.podeEntrarEmManutencao(placa)) {
-                        System.out.println("✅ Veículo pode entrar em manutenção!");
-                    } else {
-                        System.out.println("❌ Veículo NÃO pode entrar em manutenção (pode estar em uso ou já em manutenção)!");
+                    List<Manutencao> listaDeManutencoes = usuarioService.listarManutencao(admin);
+                    if(listaDeManutencoes.isEmpty()){
+                        System.out.println("Nenhuma manutencao encontrada");
+                    }else{
+                        for(Manutencao manutencao:listaDeManutencoes){
+                            System.out.println(manutencao);
+                        }
                     }
+
                     System.out.println("Pressione ENTER para continuar...");
                     input.nextLine();
                     break;
                     
                 case 4:
                     limparTela();
-                    System.out.print("PLACA DO VEÍCULO: ");
-                    placa = input.nextLine();
-                    
-                    if(manutencaoService.veiculoEstaEmManutencao(placa)) {
-                        System.out.println("🔧 Veículo está em manutenção!");
-                    } else {
-                        System.out.println("✅ Veículo NÃO está em manutenção!");
-                    }
-                    System.out.println("Pressione ENTER para continuar...");
-                    input.nextLine();
-                    break;
-                    
-                case 5:
-                    limparTela();
-                    System.out.println("===== RELATÓRIO DE MANUTENÇÕES =====");
-                    String relatorio = manutencaoService.gerarRelatorioManutencoes();
-                    System.out.println(relatorio);
-                    System.out.println("Pressione ENTER para continuar...");
-                    input.nextLine();
+                    //excluir
                     break;
                     
                 case 0:
