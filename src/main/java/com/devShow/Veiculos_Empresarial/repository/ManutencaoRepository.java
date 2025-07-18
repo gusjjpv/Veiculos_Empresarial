@@ -108,8 +108,29 @@ public class ManutencaoRepository {
         return manutencoes;
     }
 
-    
+    public boolean excluir(int idManutencao) {
+        String sql = "DELETE FROM manutencoes WHERE id = ?";
+        
+        try (Connection conn = DatabaseConnection.getInstance().getConnection();
+            PreparedStatement pstmt = conn.prepareStatement(sql)) {
+            
+            pstmt.setInt(1, idManutencao);
+            
+            int affectedRows = pstmt.executeUpdate();
+            
+            if (affectedRows > 0) {
+                System.out.println("Manutenção ID " + idManutencao + " removida com sucesso.");
+            } else {
+                System.out.println("Nenhuma manutenção encontrada com o ID " + idManutencao + " para remover.");
+            }
+            
+            return affectedRows > 0;
 
+        } catch (SQLException e) {
+            System.err.println("Erro ao remover manutenção: " + e.getMessage());
+            return false;
+        }
+    }
 
     private Manutencao criarManutencaoDoResultSet(ResultSet rs) throws SQLException {
         int id = rs.getInt("id");
