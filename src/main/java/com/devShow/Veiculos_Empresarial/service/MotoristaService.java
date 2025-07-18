@@ -1,6 +1,8 @@
 package main.java.com.devShow.Veiculos_Empresarial.service;
 
 import main.java.com.devShow.Veiculos_Empresarial.repository.MotoristaRepository;
+import main.java.com.devShow.Veiculos_Empresarial.repository.RegistroUsoRepository;
+import main.java.com.devShow.Veiculos_Empresarial.repository.VeiculoRepository;
 import main.java.com.devShow.Veiculos_Empresarial.model.Motorista;
 import java.util.List;
 
@@ -11,9 +13,16 @@ import java.util.List;
 public class MotoristaService {
     
     private MotoristaRepository motoristaRepository;
+    private RegistroUsoRepository registroUsoRepository;
+    private VeiculoRepository veiculoRepository; // Necessário para o construtor do RegistroUsoRepository
 
+    // Crie um construtor para inicializar as dependências
     public MotoristaService() {
         this.motoristaRepository = new MotoristaRepository();
+        this.veiculoRepository = new VeiculoRepository();
+        
+        // Agora, inicialize o RegistroUsoRepository passando suas dependências
+        this.registroUsoRepository = new RegistroUsoRepository(this.veiculoRepository, this.motoristaRepository);
     }
 
     /**
@@ -148,21 +157,22 @@ public class MotoristaService {
         return listaMotoristas;
     }
     
-    /**
-     * Lista motoristas por setor.
-     * 
-     * @param setor Setor desejado
-     * @return Lista de motoristas do setor
-     */
-    public List<Motorista> listarMotoristasPorSetor(String setor) {
-        if (setor == null || setor.trim().isEmpty()) {
-            System.err.println("❌ Setor é obrigatório para busca");
-            return List.of();
+    public void excluirMotorista(String cnh) {
+        Motorista motorista = motoristaRepository.buscarPorCnh(cnh);
+        if (motorista == null) {
+            System.err.println("ERRO: Motorista com CNH " + cnh + " não encontrado.");
+            return;
         }
-        
-        return motoristaRepository.listarTodos().stream()
-            .filter(motorista -> setor.equalsIgnoreCase(motorista.getSetor()))
-            .toList();
+
+        boolean temRegistros = registroUsoRepository.existsByMotoristaId(motorista.getId());
+
+        if (temRegistros) {
+            System.err.println("ERRO: O motorista '" + motorista.getNome() + "' não pode ser excluído, pois possui registros de uso associados.");
+            return;
+        }
+
+        System.out.println("SERVICE: Motorista pode ser excluído. Solicitando remoção ao repositório...");
+        motoristaRepository.remover(cnh);
     }
     
     /**

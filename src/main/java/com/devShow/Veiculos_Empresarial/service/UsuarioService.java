@@ -38,7 +38,7 @@ public class UsuarioService {
         }
     }
 
-
+    //metodos de motorista
     public void cadastrarMotorista(Usuario admin, String nome, String username, String senha, String setor, String cnh){
         if(!admin.getEhAdm()){
             return;
@@ -67,10 +67,12 @@ public class UsuarioService {
     }
 
 
-    public void removerMotorista(Usuario admin){
+    public void excluirMotorista(Usuario admin, String cnhParaRemover){
         if(!admin.getEhAdm()){
             return;
         }
+
+        motortistaService.excluirMotorista(cnhParaRemover);
     }
 
     //metodos para veiculos
