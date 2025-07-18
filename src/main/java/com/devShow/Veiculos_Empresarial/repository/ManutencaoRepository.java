@@ -10,44 +10,42 @@ import java.util.Date;
 import java.util.List;
 
 public class ManutencaoRepository {
+
+    private VeiculoRepository veiculoRepository = new VeiculoRepository();
+
     public void salvar(Manutencao manutencao) {
-        String sql = "INSERT INTO manutencoes (veiculo_id, descricao_servico, data_inicio, data_saida_prevista, nome_oficina) " +
-                     "VALUES (?, ?, ?, ?, ?)";
+        String sql = "INSERT INTO manutencoes (veiculo_id, data_inicio, data_saida_prevista, descricao_servico, nome_oficina, custo_real) " +
+                     "VALUES (?, ?, ?, ?, ?, ?)";
 
         try (Connection conn = DatabaseConnection.getInstance().getConnection();
              PreparedStatement pstmt = conn.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
 
-            if (manutencao.getVeiculo() == null || manutencao.getVeiculo().getId() == 0) {
-                System.err.println("Erro: A manutenção deve estar associada a um veículo com ID válido.");
-                return;
-            }
-
             pstmt.setInt(1, manutencao.getVeiculo().getId());
-            pstmt.setString(2, manutencao.getDescricaoServico());
-
-            // Converte java.util.Date para java.sql.Date
-            pstmt.setDate(3, new java.sql.Date(manutencao.getDataEntrada().getTime()));
+            
+            // Conversão correta de java.util.Date para o banco
+            pstmt.setDate(2, new java.sql.Date(manutencao.getDataEntrada().getTime()));
             
             if (manutencao.getDataSaidaPrevista() != null) {
-                pstmt.setDate(4, new java.sql.Date(manutencao.getDataSaidaPrevista().getTime()));
+                pstmt.setDate(3, new java.sql.Date(manutencao.getDataSaidaPrevista().getTime()));
             } else {
-                pstmt.setNull(4, Types.DATE);
+                pstmt.setNull(3, Types.DATE);
             }
+            
+            pstmt.setString(4, manutencao.getDescricaoServico());
             pstmt.setString(5, manutencao.getNomeOficina());
+            pstmt.setDouble(6, manutencao.getCustoReal());
 
             pstmt.executeUpdate();
             
-            // Recupera o ID gerado e o define no objeto
             try (ResultSet generatedKeys = pstmt.getGeneratedKeys()) {
                 if (generatedKeys.next()) {
                     manutencao.setId(generatedKeys.getInt(1));
                 }
             }
-
-            System.out.println("Manutenção para o veículo '" + manutencao.getVeiculo().getPlaca() + "' guardada com sucesso!");
+            System.out.println("Manutenção salva com sucesso para o veículo " + manutencao.getVeiculo().getPlaca());
 
         } catch (SQLException e) {
-            System.err.println("Erro ao guardar manutenção: " + e.getMessage());
+            System.err.println("Erro ao salvar manutenção: " + e.getMessage());
         }
     }
 
@@ -74,26 +72,26 @@ public class ManutencaoRepository {
         }
     }
 
-    public List<Manutencao> listarPorVeiculo(int veiculoId) {
-        String sql = "SELECT * FROM manutencoes WHERE veiculo_id = ?";
-        List<Manutencao> manutencoes = new ArrayList<>();
-
+    public Manutencao buscarManutencaoAtivaPorVeiculoId(int veiculoId) {
+        String sql = "SELECT * FROM manutencoes WHERE veiculo_id = ? AND data_saida_real IS NULL";
+        
         try (Connection conn = DatabaseConnection.getInstance().getConnection();
-             PreparedStatement pstmt = conn.prepareStatement(sql)) {
-
+            PreparedStatement pstmt = conn.prepareStatement(sql)) {
+            
             pstmt.setInt(1, veiculoId);
+            
             try (ResultSet rs = pstmt.executeQuery()) {
-                while (rs.next()) {
-                    manutencoes.add(criarManutencaoDoResultSet(rs));
+                if (rs.next()) {
+                    return criarManutencaoDoResultSet(rs); 
                 }
             }
         } catch (SQLException e) {
-            System.err.println("Erro ao listar manutenções por veículo: " + e.getMessage());
+            System.err.println("Erro ao buscar manutenção ativa por ID do veículo: " + e.getMessage());
         }
-        return manutencoes;
+        return null;
     }
 
-    public List<Manutencao> listarTodas() {
+    public List<Manutencao> listarTodos() {
         String sql = "SELECT * FROM manutencoes";
         List<Manutencao> manutencoes = new ArrayList<>();
 
@@ -110,27 +108,22 @@ public class ManutencaoRepository {
         return manutencoes;
     }
 
-    private Manutencao criarManutencaoDoResultSet(ResultSet rs) throws SQLException {
-        VeiculoRepository veiculoRepo = new VeiculoRepository(); 
-        Veiculo veiculo = veiculoRepo.buscarPorId(rs.getInt("veiculo_id"));
+    
 
-        // O JDBC retorna um tipo compatível com java.util.Date
+
+    private Manutencao criarManutencaoDoResultSet(ResultSet rs) throws SQLException {
+        int id = rs.getInt("id");
+        int veiculoId = rs.getInt("veiculo_id");
+        String descricao = rs.getString("descricao_servico");
+        String oficina = rs.getString("nome_oficina");
+        double custo = rs.getDouble("custo_real");
+
         Date dataEntrada = rs.getDate("data_inicio");
         Date dataSaidaPrevista = rs.getDate("data_saida_prevista");
         Date dataSaidaReal = rs.getDate("data_saida_real");
 
-        Manutencao manutencao = new Manutencao(
-                veiculo,
-                rs.getString("descricao_servico"),
-                dataEntrada,
-                dataSaidaPrevista,
-                rs.getString("nome_oficina")
-        );
-        
-        manutencao.setId(rs.getInt("id"));
-        manutencao.setDataSaidaReal(dataSaidaReal);
-        manutencao.setCustoReal(rs.getDouble("custo_real"));
+        Veiculo veiculo = veiculoRepository.buscarPorId(veiculoId);
 
-        return manutencao;
+        return new Manutencao(id, veiculo, descricao, oficina, dataEntrada, dataSaidaPrevista, dataSaidaReal, custo);
     }
 }
