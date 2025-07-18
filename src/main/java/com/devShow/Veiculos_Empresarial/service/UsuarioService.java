@@ -8,7 +8,7 @@ import java.util.List;
 public class UsuarioService {
     MotoristaService motortistaService = new MotoristaService();
     UsuarioRepository usuarioRepository = new UsuarioRepository();
-
+    VeiculoService veiculoService = new VeiculoService();
 
     public void cadastrarUsuario(String nome, String username, String senha, boolean ehAdm){
         Usuario usuarioExistente = usuarioRepository.buscarPorUsername(username);
@@ -76,26 +76,30 @@ public class UsuarioService {
     }
 
     //metodos para veiculos
-    public void adicionarVeiculos(Usuario admin){
+    public boolean adicionarVeiculos(Usuario admin, String placa, String modelo, String marca, int ano, String cor, double quilometragem){
         if(!admin.getEhAdm()){
-            return;
+            return false;
         }
+        veiculoService.cadastrarVeiculo(placa, modelo, marca, ano, cor, quilometragem);
+        return true;
     }
 
 
-    public void editarVeiculo(Usuario admin){
+    public void editarVeiculo(Usuario admin,String placaParaEditar, String novoModelo, String novaMarca, int novoAno, String novaCor){
         if(!admin.getEhAdm()){
             return;
         }
+        veiculoService.atualizarDadosBasicos(placaParaEditar, novoModelo, novaMarca, novoAno, novaCor);
     }
 
 
-    public void removerVeiculo(Usuario admin){
+    public void removerVeiculo(Usuario admin, String placaParaRemover){
         if(!admin.getEhAdm()){
             return;
         }
-    }
 
+        veiculoService.excluirVeiculo(placaParaRemover);
+    }
 
     //metodos de manutencao
 

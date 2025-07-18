@@ -127,7 +127,7 @@ public class VeiculoRepository {
      * @param veiculo O objeto Veiculo com as informações atualizadas.
      * @return true se o veículo foi atualizado com sucesso, false caso contrário.
      */
-    public boolean update(Veiculo veiculo) {
+    public boolean atualizar(Veiculo veiculo) {
         String sql = "UPDATE veiculos SET modelo = ?, marca = ?, ano = ?, cor = ?, quilometragem = ?, status = ?, ultima_data_revisao = ? WHERE id = ?;";
         try (Connection conn = DatabaseConnection.getInstance().getConnection();
              PreparedStatement pstmt = conn.prepareStatement(sql)) {

@@ -2,6 +2,8 @@ package main.java.com.devShow.Veiculos_Empresarial.service;
 
 import main.java.com.devShow.Veiculos_Empresarial.model.Veiculo;
 import main.java.com.devShow.Veiculos_Empresarial.model.StatusVeiculo;
+import main.java.com.devShow.Veiculos_Empresarial.repository.MotoristaRepository;
+import main.java.com.devShow.Veiculos_Empresarial.repository.RegistroUsoRepository;
 import main.java.com.devShow.Veiculos_Empresarial.repository.VeiculoRepository;
 import java.util.Calendar;
 import java.util.List;
@@ -13,9 +15,11 @@ import java.util.List;
 public class VeiculoService {
     
     private VeiculoRepository veiculoRepository;
+    private RegistroUsoRepository registroUsoRepository;
     
     public VeiculoService() {
         this.veiculoRepository = new VeiculoRepository();
+        this.registroUsoRepository = new RegistroUsoRepository(new VeiculoRepository(), new MotoristaRepository());
     }
     
     /**
@@ -144,6 +148,23 @@ public class VeiculoService {
     public List<Veiculo> listarVeiculosEmManutencao() {
         return listarVeiculosPorStatus(StatusVeiculo.MANUTENCAO);
     }
+
+
+    public boolean atualizarDadosBasicos(String placaParaBuscar, String novoModelo, String novaMarca, int novoAno, String novaCor){
+        Veiculo veiculoExistente = veiculoRepository.buscarVeiculoPorPlaca(placaParaBuscar);
+        if(veiculoExistente == null){
+            System.err.println("SERVIÇO: Erro! Veículo com placa " + placaParaBuscar + " não encontrado.");
+            return false;
+        }
+
+        veiculoExistente.setModelo(novoModelo);
+        veiculoExistente.setMarca(novaMarca);
+        veiculoExistente.setAno(novoAno);
+        veiculoExistente.setCor(novaCor);
+        veiculoRepository.atualizar(veiculoExistente);
+        return true;
+    }
+
     
     /**
      * Atualiza o status de um veículo.
@@ -163,7 +184,7 @@ public class VeiculoService {
             StatusVeiculo statusAnterior = veiculo.getStatus();
             veiculo.setStatus(novoStatus);
             
-            boolean atualizado = veiculoRepository.update(veiculo);
+            boolean atualizado = veiculoRepository.atualizar(veiculo);
             
             if (atualizado) {
                 System.out.println("✅ Status do veículo atualizado!");
@@ -201,7 +222,7 @@ public class VeiculoService {
             double quilometragemAnterior = veiculo.getQuilometragemAtual();
             veiculo.setQuilometragemAtual(novaQuilometragem);
             
-            boolean atualizado = veiculoRepository.update(veiculo);
+            boolean atualizado = veiculoRepository.atualizar(veiculo);
             
             if (atualizado) {
                 double diferenca = novaQuilometragem - quilometragemAnterior;
@@ -219,6 +240,29 @@ public class VeiculoService {
         
         return false;
     }
+
+
+    public boolean excluirVeiculo(String placa){
+        Veiculo veiculo = veiculoRepository.buscarVeiculoPorPlaca(placa);
+        if(veiculo == null){
+            System.err.println("ERRO: Veiculo com placa "+ placa + " nao encontrado");
+            return false;
+        }
+
+        boolean temRegistrosDeUso = registroUsoRepository.existsByMotoristaId(veiculo.getId());
+        if(temRegistrosDeUso){
+            System.err.println("ERRO: Veiculo " + placa + " nao pode ser excluido, pois existe registros de uso associados");
+            return false;
+        }
+        //     boolean temManutencoes = manutencaoRepository.existsByVeiculoId(veiculo.getId());
+        // if (temManutencoes) {
+        //     System.err.println("ERRO: Veículo " + placa + " não pode ser excluído, pois possui manutenções associadas.");
+        //     return false;
+        // }
+        veiculoRepository.delete(veiculo.getId());
+        return true;
+    }
+
     
     /**
      * Gera estatísticas da frota.

@@ -18,7 +18,7 @@ public class Main{
     public static void main(String[] args){
         DatabaseConnection.getInstance();
         Scanner input = new Scanner(System.in);
-        String nome, username, senha, setor, cnh;
+        String nome, username, senha;
         int opcao;
         do {
             limparTela();
@@ -76,7 +76,7 @@ public class Main{
                 menuGerenciamentoDeMotorista(admin);
             }else if(opcao == 2){
                 limparTela();
-                menuGerenciamentoVeiculos();
+                menuGerenciamentoVeiculos(admin);
             }else if(opcao == 3){
                 limparTela();
                 menuControleDeManutencao();
@@ -91,7 +91,7 @@ public class Main{
                 System.err.println("ERRO: opcao invalida");
             }
         } while (opcao != 0);
-        
+        input.close();
     }
 
     public static void menuMotorista(Usuario motorista){
@@ -187,6 +187,7 @@ public class Main{
                     break;
             }
         } while (opcao != 0);
+        input.close();
     }
 
 
@@ -247,11 +248,11 @@ public class Main{
                 System.err.println("ERRO: opcao invalida");
             }
         } while (opcao != 0);
-
+        input.close();
     }
 
 
-    public static void menuGerenciamentoVeiculos(){
+    public static void menuGerenciamentoVeiculos(Usuario admin){
         int opcao;
         Scanner input = new Scanner(System.in);
         String placa, modelo, marca, cor;
@@ -284,7 +285,7 @@ public class Main{
                     quilometragem = input.nextDouble();
                     input.nextLine();
                     
-                    if(veiculoService.cadastrarVeiculo(placa, modelo, marca, ano, cor, quilometragem)) {
+                    if(usuarioService.adicionarVeiculos(admin, placa, modelo, marca, ano, cor, quilometragem)) {
                         System.out.println("✅ Veículo cadastrado com sucesso!");
                     } else {
                         System.out.println("❌ Erro ao cadastrar veículo!");
@@ -295,14 +296,27 @@ public class Main{
                     
                 case 2:
                     limparTela();
-                    //editar veiculo
+                    System.out.print("PLACA DO VEICULO: ");
+                    placa = input.nextLine();
+                    System.out.print("NOVO MODELO: ");
+                    modelo = input.nextLine();
+                    System.out.print("NOVA MARCA: ");
+                    marca = input.nextLine();
+                    System.out.print("NOVO ANO: ");
+                    ano = input.nextInt();
+                    input.nextLine();
+                    System.out.print("NOVA COR: ");
+                    cor = input.nextLine();
+                    usuarioService.editarVeiculo(admin, placa, modelo, marca, ano, cor);
                     System.out.println("Pressione ENTER para continuar...");
                     input.nextLine();
                     break;
-                    
                 case 3:
                     limparTela();
-                    //remover veiculo
+                    System.out.print("PLACA DO VEICULO: ");
+                    placa = input.nextLine();
+                    //resolver erro dps tenta voltar para o menu.
+                    usuarioService.removerVeiculo(admin, placa);
                     System.out.println("Pressione ENTER para continuar...");
                     input.nextLine();
                     break;
@@ -315,6 +329,7 @@ public class Main{
                     break;
             }
         } while (opcao != 0);
+        input.close();
     }
 
     public static void menuControleDeManutencao(){
@@ -439,6 +454,7 @@ public class Main{
                     break;
             }
         } while (opcao != 0);
+        input.close();
     }
 
 
@@ -582,6 +598,7 @@ public class Main{
                     break;
             }
         } while (opcao != 0);
+        input.close();
     }
 
     public static void limparTela() {

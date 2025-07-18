@@ -6,27 +6,22 @@ public class Motorista extends Usuario {
     private int usuarioId; 
     private boolean ativoMotorista;
     private int id;  
-    // esses novos campos sao para compatibilidade com o banco de dados
-    // 'usuarioId' é a FK para 'usuarios.id' e 'ativoMotorista' é o campo correspondente na tabela 'motoristas'
-
-
+    
     public Motorista(String nome, String username, String senha, String setor, String cnh) {
         super(nome, username, senha, false);
         this.setor = setor;
         this.cnh = cnh;
-        this.ativoMotorista = true; // Por padrão, o motorista está ativo
+        this.ativoMotorista = true;
     }
 
-    // NOVO CONSTRUTOR: Para carregar motorista do banco (com IDs e 'ativoMotorista')
-    // Recebe os dados completos do motorista, incluindo o ID da tabela 'motoristas' e 'usuario_id'
-    public Motorista(int id, String nome, String username, String senha, boolean ehAdm, boolean ativoUsuario, // Dados do Usuario
-                     String setor, String cnh, int usuarioId, boolean ativoMotorista) { // Dados do Motorista
-        super(id, nome, username, senha, ehAdm, ativoUsuario); // Chama o construtor da superclasse Usuario com seu ID e ativo
-        this.id = id; // ID da tabela 'motoristas'
+    public Motorista(int id, String nome, String username, String senha, boolean ehAdm, boolean ativoUsuario,
+                     String setor, String cnh, int usuarioId, boolean ativoMotorista) {
+        super(id, nome, username, senha, ehAdm, ativoUsuario);
+        this.id = id; 
         this.setor = setor;
         this.cnh = cnh;
-        this.usuarioId = usuarioId; // FK para 'usuarios.id'
-        this.ativoMotorista = ativoMotorista; // Ativo da tabela 'motoristas'
+        this.usuarioId = usuarioId;
+        this.ativoMotorista = ativoMotorista;
     }
 
 
