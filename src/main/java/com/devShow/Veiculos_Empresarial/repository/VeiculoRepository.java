@@ -122,11 +122,6 @@ public class VeiculoRepository {
         return new Veiculo(id, placa, modelo, marca, ano, cor, status, quilometragemAtual, ultimaDataDeRevisao);
     }
 
-/**
-     * Atualiza as informações de um veículo existente no banco de dados.
-     * @param veiculo O objeto Veiculo com as informações atualizadas.
-     * @return true se o veículo foi atualizado com sucesso, false caso contrário.
-     */
     public boolean atualizar(Veiculo veiculo) {
         String sql = "UPDATE veiculos SET modelo = ?, marca = ?, ano = ?, cor = ?, quilometragem = ?, status = ?, ultima_data_revisao = ? WHERE id = ?;";
         try (Connection conn = DatabaseConnection.getInstance().getConnection();
@@ -154,11 +149,6 @@ public class VeiculoRepository {
         }
     }
 
-    /**
-     * Exclui um veículo do banco de dados pelo seu ID.
-     * @param id O ID do veículo a ser excluído.
-     * @return true se o veículo foi excluído com sucesso, false caso contrário.
-     */
     public boolean delete(int id) { // Exclui por ID
         String sql = "DELETE FROM veiculos WHERE id = ?;";
         try (Connection conn = DatabaseConnection.getInstance().getConnection();
@@ -172,10 +162,6 @@ public class VeiculoRepository {
         }
     }
 
-    /**
-     * Lista todos os veículos cadastrados no banco de dados.
-     * @return Uma lista de objetos Veiculo.
-     */
     public List<Veiculo> findAll() {
         String sql = "SELECT * FROM veiculos;";
         List<Veiculo> veiculos = new java.util.ArrayList<>();
@@ -191,16 +177,15 @@ public class VeiculoRepository {
         return veiculos;
     }
 
-    /**
-     * Lista todos os veículos disponíveis (status DISPONIVEL) no banco de dados.
-     * @return Uma lista de objetos Veiculo disponíveis.
-     */
-    public List<Veiculo> findAvailable() {
+    public List<Veiculo> listarVeiculosDisponiveis() {
         String sql = "SELECT * FROM veiculos WHERE status = ?;";
         List<Veiculo> veiculos = new java.util.ArrayList<>();
+
         try (Connection conn = DatabaseConnection.getInstance().getConnection();
-             PreparedStatement pstmt = conn.prepareStatement(sql)) {
+            PreparedStatement pstmt = conn.prepareStatement(sql)) {
+            
             pstmt.setString(1, StatusVeiculo.DISPONIVEL.name());
+
             try (ResultSet rs = pstmt.executeQuery()) {
                 while (rs.next()) {
                     veiculos.add(criarVeiculoDoResultSet(rs));
