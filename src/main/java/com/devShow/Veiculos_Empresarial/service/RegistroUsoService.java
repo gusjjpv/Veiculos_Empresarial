@@ -20,77 +20,94 @@ public class RegistroUsoService {
         this.veiculoRepository = new VeiculoRepository();
         this.motoristaRepository = new MotoristaRepository();
         this.registroUsoRepository = new RegistroUsoRepository(veiculoRepository, motoristaRepository);
-        this.veiculoService = new VeiculoService();
     }
-    
-    /**
-     * Inicia um novo registro de uso de veículo.
-     * Valida disponibilidade do veículo e dados do motorista.
-     * 
-     * @param placaVeiculo Placa do veículo a ser usado
-     * @param cnhMotorista CNH do motorista
-     * @param destinoOuFinalidade Destino ou finalidade do uso
-     * @return ID do registro criado ou -1 se falhou
-     */
-    public int iniciarUsoVeiculo(String placaVeiculo, String cnhMotorista, String destinoOuFinalidade) {
-        try {
-            // Validações de entrada
-            validarDadosInicioUso(placaVeiculo, cnhMotorista, destinoOuFinalidade);
-            
-            // Busca veículo e motorista
-            Veiculo veiculo = veiculoRepository.buscarVeiculoPorPlaca(placaVeiculo);
-            Motorista motorista = motoristaRepository.buscarPorCnh(cnhMotorista);
-            
-            if (veiculo == null) {
-                throw new IllegalArgumentException("Veículo com placa " + placaVeiculo + " não encontrado");
-            }
-            
-            if (motorista == null) {
-                throw new IllegalArgumentException("Motorista com CNH " + cnhMotorista + " não encontrado");
-            }
-            
-            // Verifica se o veículo está disponível
-            if (veiculo.getStatus() != StatusVeiculo.DISPONIVEL) {
-                throw new IllegalStateException("Veículo não está disponível. Status atual: " + veiculo.getStatus());
-            }
-            
-            // Verifica se o motorista não está usando outro veículo
-            if (motoristaEstaUsandoVeiculo(motorista.getId())) {
-                throw new IllegalStateException("Motorista já está usando outro veículo");
-            }
-            
-            // Cria o registro de uso
-            RegistroUso novoRegistro = new RegistroUso(
-                veiculo,
-                motorista,
-                new Date(), // Data/hora atual de saída
-                veiculo.getQuilometragemAtual(), // KM atual do veículo
-                destinoOuFinalidade
-            );
-            
-            // Salva o registro
-            int idRegistro = registroUsoRepository.salvar(novoRegistro);
-            
-            if (idRegistro > 0) {
-                // Atualiza status do veículo para EM_USO
-                veiculo.setStatus(StatusVeiculo.EM_USO);
-                veiculoRepository.atualizar(veiculo);
-                
-                System.out.println("✅ Uso do veículo iniciado com sucesso!");
-                System.out.println("   Registro ID: " + idRegistro);
-                System.out.println("   Veículo: " + veiculo.getPlaca() + " (" + veiculo.getModelo() + ")");
-                System.out.println("   Motorista: " + motorista.getNome());
-                System.out.println("   KM inicial: " + veiculo.getQuilometragemAtual());
-                
-                return idRegistro;
-            }
-            
-        } catch (Exception e) {
-            System.err.println("❌ Erro ao iniciar uso do veículo: " + e.getMessage());
-        }
+
+
+    public RegistroUso registrarSaida(Veiculo veiculo, Motorista motorista, String destino) {
+    try {
+
+        RegistroUso novoRegistro = new RegistroUso(veiculo, motorista, new Date(), veiculo.getQuilometragemAtual(), destino);
+
+        registroUsoRepository.salvar(novoRegistro);
+
+        System.out.println("SERVICE (RegistroUso): Saída registrada com sucesso. ID: " + novoRegistro.getId());
         
-        return -1;
+        return novoRegistro;
+
+    } catch (Exception e) {
+        System.err.println("❌ Erro no serviço ao registrar saída: " + e.getMessage());
+        return null;
     }
+}
+
+    // /**
+    //  * Inicia um novo registro de uso de veículo.
+    //  * Valida disponibilidade do veículo e dados do motorista.
+    //  * 
+    //  * @param placaVeiculo Placa do veículo a ser usado
+    //  * @param cnhMotorista CNH do motorista
+    //  * @param destinoOuFinalidade Destino ou finalidade do uso
+    //  * @return ID do registro criado ou -1 se falhou
+    //  */
+    // public int iniciarUsoVeiculo(String placaVeiculo, String cnhMotorista, String destinoOuFinalidade) {
+    //     try {
+    //         // Validações de entrada
+    //         validarDadosInicioUso(placaVeiculo, cnhMotorista, destinoOuFinalidade);
+            
+    //         // Busca veículo e motorista
+    //         Veiculo veiculo = veiculoRepository.buscarVeiculoPorPlaca(placaVeiculo);
+    //         Motorista motorista = motoristaRepository.buscarPorCnh(cnhMotorista);
+            
+    //         if (veiculo == null) {
+    //             throw new IllegalArgumentException("Veículo com placa " + placaVeiculo + " não encontrado");
+    //         }
+            
+    //         if (motorista == null) {
+    //             throw new IllegalArgumentException("Motorista com CNH " + cnhMotorista + " não encontrado");
+    //         }
+            
+    //         // Verifica se o veículo está disponível
+    //         if (veiculo.getStatus() != StatusVeiculo.DISPONIVEL) {
+    //             throw new IllegalStateException("Veículo não está disponível. Status atual: " + veiculo.getStatus());
+    //         }
+            
+    //         // Verifica se o motorista não está usando outro veículo
+    //         if (motoristaEstaUsandoVeiculo(motorista.getId())) {
+    //             throw new IllegalStateException("Motorista já está usando outro veículo");
+    //         }
+            
+    //         // Cria o registro de uso
+    //         RegistroUso novoRegistro = new RegistroUso(
+    //             veiculo,
+    //             motorista,
+    //             new Date(), // Data/hora atual de saída
+    //             veiculo.getQuilometragemAtual(), // KM atual do veículo
+    //             destinoOuFinalidade
+    //         );
+            
+    //         // Salva o registro
+    //         int idRegistro = registroUsoRepository.salvar(novoRegistro);
+            
+    //         if (idRegistro > 0) {
+    //             // Atualiza status do veículo para EM_USO
+    //             veiculo.setStatus(StatusVeiculo.EM_USO);
+    //             veiculoRepository.atualizar(veiculo);
+                
+    //             System.out.println("✅ Uso do veículo iniciado com sucesso!");
+    //             System.out.println("   Registro ID: " + idRegistro);
+    //             System.out.println("   Veículo: " + veiculo.getPlaca() + " (" + veiculo.getModelo() + ")");
+    //             System.out.println("   Motorista: " + motorista.getNome());
+    //             System.out.println("   KM inicial: " + veiculo.getQuilometragemAtual());
+                
+    //             return idRegistro;
+    //         }
+            
+    //     } catch (Exception e) {
+    //         System.err.println("❌ Erro ao iniciar uso do veículo: " + e.getMessage());
+    //     }
+        
+    //     return -1;
+    // }
     
     /**
      * Finaliza um registro de uso de veículo.

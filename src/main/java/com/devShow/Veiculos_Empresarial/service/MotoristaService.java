@@ -4,6 +4,9 @@ import main.java.com.devShow.Veiculos_Empresarial.repository.MotoristaRepository
 import main.java.com.devShow.Veiculos_Empresarial.repository.RegistroUsoRepository;
 import main.java.com.devShow.Veiculos_Empresarial.repository.VeiculoRepository;
 import main.java.com.devShow.Veiculos_Empresarial.model.Motorista;
+import main.java.com.devShow.Veiculos_Empresarial.model.RegistroUso;
+import main.java.com.devShow.Veiculos_Empresarial.model.Usuario;
+
 import java.util.List;
 
 /**
@@ -14,15 +17,14 @@ public class MotoristaService {
     
     private MotoristaRepository motoristaRepository;
     private RegistroUsoRepository registroUsoRepository;
-    private VeiculoRepository veiculoRepository; // Necessário para o construtor do RegistroUsoRepository
+    private VeiculoRepository veiculoRepository;
+    private VeiculoService veiculoService;
 
-    // Crie um construtor para inicializar as dependências
     public MotoristaService() {
         this.motoristaRepository = new MotoristaRepository();
         this.veiculoRepository = new VeiculoRepository();
-        
-        // Agora, inicialize o RegistroUsoRepository passando suas dependências
         this.registroUsoRepository = new RegistroUsoRepository(this.veiculoRepository, this.motoristaRepository);
+        this.veiculoService = new VeiculoService();
     }
 
     /**
@@ -108,6 +110,18 @@ public class MotoristaService {
         
         return false;
     }
+
+
+    public boolean iniciarViagem(Motorista motoristaUsuario, String placa, String destino) {
+        if (motoristaUsuario == null) {
+            System.out.println("❌ Erro: Usuário não é um motorista válido!");
+            return false;
+        }
+        RegistroUso novoRegistro = veiculoService.usarVeiculo(placa, motoristaUsuario, destino);
+
+        return novoRegistro != null;
+    }
+
 
     /**
      * Busca um motorista por CNH.
@@ -232,44 +246,44 @@ public class MotoristaService {
         return null;
     }
     
-    /**
-     * Gera estatísticas de motoristas.
-     * 
-     * @return String com estatísticas formatadas
-     */
-    public String gerarEstatisticasMotoristas() {
-        List<Motorista> todosMotoristas = motoristaRepository.listarTodos();
+    // /**
+    //  * Gera estatísticas de motoristas.
+    //  * 
+    //  * @return String com estatísticas formatadas
+    //  */
+    // public String gerarEstatisticasMotoristas() {
+    //     List<Motorista> todosMotoristas = motoristaRepository.listarTodos();
         
-        long motoristasAtivos = todosMotoristas.stream().filter(Motorista::isAtivo).count();
-        long motoristasInativos = todosMotoristas.size() - motoristasAtivos;
+    //     long motoristasAtivos = todosMotoristas.stream().filter(Motorista::isAtivo).count();
+    //     long motoristasInativos = todosMotoristas.size() - motoristasAtivos;
         
-        // Conta motoristas por setor
-        var motoristasPorSetor = todosMotoristas.stream()
-            .filter(Motorista::isAtivo)
-            .collect(java.util.stream.Collectors.groupingBy(
-                Motorista::getSetor,
-                java.util.stream.Collectors.counting()
-            ));
+    //     // Conta motoristas por setor
+    //     var motoristasPorSetor = todosMotoristas.stream()
+    //         .filter(Motorista::isAtivo)
+    //         .collect(java.util.stream.Collectors.groupingBy(
+    //             Motorista::getSetor,
+    //             java.util.stream.Collectors.counting()
+    //         ));
         
-        StringBuilder stats = new StringBuilder();
-        stats.append("🚛 ESTATÍSTICAS DE MOTORISTAS\n");
-        stats.append("════════════════════════════\n");
-        stats.append("Total de motoristas: ").append(todosMotoristas.size()).append("\n");
-        stats.append("Motoristas ativos: ").append(motoristasAtivos).append("\n");
-        stats.append("Motoristas inativos: ").append(motoristasInativos).append("\n");
-        stats.append("\n");
-        stats.append("Por setor:\n");
+    //     StringBuilder stats = new StringBuilder();
+    //     stats.append("🚛 ESTATÍSTICAS DE MOTORISTAS\n");
+    //     stats.append("════════════════════════════\n");
+    //     stats.append("Total de motoristas: ").append(todosMotoristas.size()).append("\n");
+    //     stats.append("Motoristas ativos: ").append(motoristasAtivos).append("\n");
+    //     stats.append("Motoristas inativos: ").append(motoristasInativos).append("\n");
+    //     stats.append("\n");
+    //     stats.append("Por setor:\n");
         
-        if (motoristasPorSetor.isEmpty()) {
-            stats.append("  Nenhum motorista ativo cadastrado\n");
-        } else {
-            motoristasPorSetor.forEach((setor, quantidade) -> 
-                stats.append("  ").append(setor).append(": ").append(quantidade).append("\n")
-            );
-        }
+    //     if (motoristasPorSetor.isEmpty()) {
+    //         stats.append("  Nenhum motorista ativo cadastrado\n");
+    //     } else {
+    //         motoristasPorSetor.forEach((setor, quantidade) -> 
+    //             stats.append("  ").append(setor).append(": ").append(quantidade).append("\n")
+    //         );
+    //     }
         
-        return stats.toString();
-    }
+    //     return stats.toString();
+    // }
     
     // ==================== MÉTODOS AUXILIARES ====================
     

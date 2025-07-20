@@ -46,10 +46,18 @@ public class Main{
                 if(novoLogin != null){
                     limparTela();
                     System.out.println("Login Bem-sucedido!");
+
                     if(novoLogin.getEhAdm()){
                         menuAdmin(novoLogin, input);
                     }else{
-                        menuMotorista(novoLogin, input);
+                        Motorista motoristaCompleto = motoristaService.buscarMotoristaPorId(novoLogin.getId());
+                        if(motoristaCompleto != null){
+                            menuMotorista(motoristaCompleto, input);
+                        }else{
+                            System.err.println("ERRO CRÍTICO: Este usuário é um funcionário, mas seus dados de motorista não foram encontrados no sistema.");
+                            System.out.println("Pressione ENTER para continuar...");
+                            input.nextLine();
+                        }
                     }
                 }
             }else if(opcao == 0){
@@ -91,7 +99,7 @@ public class Main{
         } while (opcao != 0);
     }
 
-    public static void menuMotorista(Usuario motorista, Scanner input){
+    public static void menuMotorista(Motorista motorista, Scanner input){
         int opcao;
         String placa, destino;
         int idRegistro;
@@ -127,30 +135,12 @@ public class Main{
                     
                 case 2:
                     limparTela();
-                    
-                    Motorista motoristaObj = motoristaService.buscarMotoristaPorId(motorista.getId());
-                    if(motoristaObj == null) {
-                        System.out.println("❌ Erro: Usuário não é um motorista válido!");
-                        System.out.println("Pressione ENTER para continuar...");
-                        input.nextLine();
-                        break;
-                    }
-                    
                     System.out.print("PLACA DO VEÍCULO: ");
                     placa = input.nextLine();
                     System.out.print("DESTINO/FINALIDADE: ");
                     destino = input.nextLine();
                     
-                    int novoRegistroId = registroUsoService.iniciarUsoVeiculo(placa, motoristaObj.getCnh(), destino);
-                    if(novoRegistroId > 0) {
-                        System.out.println("✅ Uso do veículo iniciado com sucesso!");
-                        System.out.println("📋 ID do Registro: " + novoRegistroId);
-                        System.out.println("🚗 Veículo: " + placa);
-                        System.out.println("📍 Destino: " + destino);
-                    } else {
-                        System.out.println("❌ Erro ao iniciar uso do veículo!");
-                        System.out.println("Verifique se o veículo está disponível.");
-                    }
+                    motoristaService.iniciarViagem(motorista, placa, destino);
                     System.out.println("Pressione ENTER para continuar...");
                     input.nextLine();
                     break;
@@ -530,14 +520,14 @@ public class Main{
                     System.out.print("DESTINO/FINALIDADE: ");
                     String destino = input.nextLine();
                     
-                    int novoRegistroId = registroUsoService.iniciarUsoVeiculo(placa, cnh, destino);
-                    if(novoRegistroId > 0) {
-                        System.out.println("✅ Uso do veículo iniciado com sucesso! ID do Registro: " + novoRegistroId);
-                    } else {
-                        System.out.println("❌ Erro ao iniciar uso do veículo!");
-                    }
-                    System.out.println("Pressione ENTER para continuar...");
-                    input.nextLine();
+                    // int novoRegistroId = registroUsoService.iniciarUsoVeiculo(placa, cnh, destino);
+                    // if(novoRegistroId > 0) {
+                    //     System.out.println("✅ Uso do veículo iniciado com sucesso! ID do Registro: " + novoRegistroId);
+                    // } else {
+                    //     System.out.println("❌ Erro ao iniciar uso do veículo!");
+                    // }
+                    // System.out.println("Pressione ENTER para continuar...");
+                    // input.nextLine();
                     break;
                     
                 case 7:

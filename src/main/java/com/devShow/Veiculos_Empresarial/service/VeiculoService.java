@@ -1,6 +1,8 @@
 package main.java.com.devShow.Veiculos_Empresarial.service;
 
 import main.java.com.devShow.Veiculos_Empresarial.model.Veiculo;
+import main.java.com.devShow.Veiculos_Empresarial.model.Motorista;
+import main.java.com.devShow.Veiculos_Empresarial.model.RegistroUso;
 import main.java.com.devShow.Veiculos_Empresarial.model.StatusVeiculo;
 import main.java.com.devShow.Veiculos_Empresarial.repository.MotoristaRepository;
 import main.java.com.devShow.Veiculos_Empresarial.repository.RegistroUsoRepository;
@@ -16,10 +18,12 @@ public class VeiculoService {
     
     private VeiculoRepository veiculoRepository;
     private RegistroUsoRepository registroUsoRepository;
+    private RegistroUsoService registroUsoService;
     
     public VeiculoService() {
         this.veiculoRepository = new VeiculoRepository();
         this.registroUsoRepository = new RegistroUsoRepository(new VeiculoRepository(), new MotoristaRepository());
+        this.registroUsoService = new RegistroUsoService();
     }
     
     /**
@@ -65,6 +69,36 @@ public class VeiculoService {
         
         return false;
     }
+
+
+    public RegistroUso usarVeiculo(String placa, Motorista motorista, String destino) {
+        try {
+            Veiculo veiculo = veiculoRepository.buscarVeiculoPorPlaca(placa);
+            if (veiculo == null) {
+                throw new Exception("Veículo com placa '" + placa + "' não encontrado.");
+            }
+
+            if (veiculo.getStatus() != StatusVeiculo.DISPONIVEL) {
+                throw new Exception("Veículo não está disponível. Status atual: " + veiculo.getStatus());
+            }
+
+            veiculo.setStatus(StatusVeiculo.EM_USO);
+            veiculoRepository.atualizar(veiculo);
+            System.out.println("SERVICE (Veiculo): Status do veículo " + placa + " atualizado para EM_USO.");
+
+            RegistroUso novoRegistro = registroUsoService.registrarSaida(veiculo, motorista, destino);
+            if (novoRegistro == null) {
+                // Se o registro falhou, idealmente deveríamos reverter o status do veículo (lógica de transação avançada).
+                // Por enquanto, apenas reportamos o erro.
+                throw new Exception("Falha ao registrar a saída do veículo.");
+            }
+            return novoRegistro;
+        } catch (Exception e) {
+            System.err.println("❌ Erro no processo de usar veículo: " + e.getMessage());
+            return null;
+        }
+    }
+
 
     public Veiculo buscarVeiculoPorPlaca(String placa) {
         return veiculoRepository.buscarVeiculoPorPlaca(placa);
@@ -127,7 +161,7 @@ public class VeiculoService {
         return true;
     }
 
-    public boolean atualizarStatusVeiculo(String placa, StatusVeiculo novoStatus) {
+    public boolean atualizarStatus(String placa, StatusVeiculo novoStatus) {
         try {
             Veiculo veiculo = veiculoRepository.buscarVeiculoPorPlaca(placa);
             if (veiculo == null) {
@@ -163,7 +197,6 @@ public class VeiculoService {
                 return false;
             }
             
-            // Valida a nova quilometragem
             validarNovaQuilometragem(veiculo.getQuilometragemAtual(), novaQuilometragem);
             
             double quilometragemAnterior = veiculo.getQuilometragemAtual();

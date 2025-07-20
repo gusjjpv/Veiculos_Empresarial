@@ -143,38 +143,31 @@ public class MotoristaRepository {
         return new Motorista(nome, username, senha, setor, cnh);
     }
 
-    /**
-     * Busca um motorista pelo seu ID.
-     * @param id O ID do motorista a ser buscado.
-     * @return O objeto Motorista encontrado, ou null se não existir.
-     */
-    public Motorista buscarPorId(int id) {
+    public Motorista buscarPorId(int usuarioId) {
         String sql = "SELECT u.id as usuario_id, u.nome, u.user_name, u.senha, u.tipo, u.ativo as usuario_ativo, " +
-                     "m.id as motorista_id, m.setor, m.cnh, m.ativo as motorista_ativo " +
-                     "FROM motoristas m " +
-                     "JOIN usuarios u ON m.usuario_id = u.id " +
-                     "WHERE m.id = ?";
-        
-        try (Connection conn = DatabaseConnection.getInstance().getConnection();
-             PreparedStatement pstmt = conn.prepareStatement(sql)) {
+                 "m.id as motorista_id, m.setor, m.cnh, m.ativo as motorista_ativo " +
+                 "FROM motoristas m " +
+                 "JOIN usuarios u ON m.usuario_id = u.id " +
+                 "WHERE m.usuario_id = ?"; 
 
-            pstmt.setInt(1, id);
+        try (Connection conn = DatabaseConnection.getInstance().getConnection();
+            PreparedStatement pstmt = conn.prepareStatement(sql)) {
+
+        // Agora estamos passando o usuarioId para a cláusula WHERE correta
+            pstmt.setInt(1, usuarioId);
 
             try (ResultSet rs = pstmt.executeQuery()) {
                 if (rs.next()) {
-                    return criarMotoristaCompletoDoResultSet(rs);
+                // Supondo que você tenha este método para criar o objeto
+                return criarMotoristaCompletoDoResultSet(rs);
                 }
             }
         } catch (SQLException e) {
-            System.err.println("Erro ao buscar motorista por ID: " + e.getMessage());
+            System.err.println("Erro ao buscar motorista por ID de usuário: " + e.getMessage());
         }
         return null;
     }
 
-    /**
-     * Cria um objeto Motorista completo com todos os dados do banco de dados.
-     * Usado para carregar motoristas com IDs e status de ativo.
-     */
     private Motorista criarMotoristaCompletoDoResultSet(ResultSet rs) throws SQLException {
         int motoristaId = rs.getInt("motorista_id");
         int usuarioId = rs.getInt("usuario_id");
