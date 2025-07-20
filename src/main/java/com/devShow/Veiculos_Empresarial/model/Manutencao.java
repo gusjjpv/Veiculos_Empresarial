@@ -1,5 +1,6 @@
 package main.java.com.devShow.Veiculos_Empresarial.model;
 
+import java.text.SimpleDateFormat;
 import java.util.Date;
 
 public class Manutencao {
@@ -101,14 +102,21 @@ public class Manutencao {
 
     @Override
     public String toString() {
+        SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy");
+
+        String entradaFormatada = (dataEntrada != null) ? sdf.format(dataEntrada) : "N/A";
+        String saidaPrevistaFormatada = (dataSaidaPrevista != null) ? sdf.format(dataSaidaPrevista) : "N/A";
+        String saidaRealFormatada = (dataSaidaReal != null) ? sdf.format(dataSaidaReal) : "Pendente";
+
         return String.format(
-            "Manutencao [ID: %d, Veículo: %s, Descrição: '%s', Oficina: '%s', Entrada: %s, Saída Real: %s, Custo: R$%.2f]",
+            "Manutencao [ID: %d, Veículo: %s, Descrição: '%s', Oficina: '%s', Entrada: %s, Prev. Saída: %s, Saída Real: %s, Custo: R$%.2f]",
             id,
             (veiculo != null ? veiculo.getPlaca() : "N/A"),
             descricaoServico,
             nomeOficina,
-            dataEntrada,
-            (dataSaidaReal != null ? dataSaidaReal : "Pendente"),
+            entradaFormatada,
+            saidaPrevistaFormatada,
+            saidaRealFormatada,
             custoReal
         );
     }
