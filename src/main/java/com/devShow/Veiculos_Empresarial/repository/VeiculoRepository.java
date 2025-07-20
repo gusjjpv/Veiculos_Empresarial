@@ -5,9 +5,13 @@ import main.java.com.devShow.Veiculos_Empresarial.database.DatabaseConnection;
 import main.java.com.devShow.Veiculos_Empresarial.model.StatusVeiculo;
 
 import java.sql.*;
+import java.text.SimpleDateFormat;
 import java.util.List;
 
 public class VeiculoRepository {
+
+    private final SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy");
+
     public void salvar(Veiculo veiculo) {
         String sql = "INSERT INTO veiculos (placa, modelo, marca, ano, cor, quilometragem, status, ultima_data_revisao) "
                 + "VALUES (?, ?, ?, ?, ?, ?, ?, ?)";
@@ -24,11 +28,9 @@ public class VeiculoRepository {
             pstmt.setString(7, veiculo.getStatus().name());
 
             if (veiculo.getUltimaDataDeRevisao() != null) {
-                java.util.Date utilDate = veiculo.getUltimaDataDeRevisao();
-                java.sql.Date sqlDate = new java.sql.Date(utilDate.getTime());
-                pstmt.setDate(8, sqlDate);
+                pstmt.setString(8, sdf.format(veiculo.getUltimaDataDeRevisao()));
             } else {
-                pstmt.setNull(8, Types.DATE);
+                pstmt.setNull(8, Types.VARCHAR);
             }
 
             pstmt.executeUpdate();
@@ -135,9 +137,9 @@ public class VeiculoRepository {
             pstmt.setString(6, veiculo.getStatus().name());
 
             if (veiculo.getUltimaDataDeRevisao() != null) {
-                pstmt.setLong(7, veiculo.getUltimaDataDeRevisao().getTime());
+                pstmt.setString(7, sdf.format(veiculo.getUltimaDataDeRevisao()));
             } else {
-                pstmt.setNull(7, Types.INTEGER);
+                pstmt.setNull(7, Types.VARCHAR);
             }
             pstmt.setInt(8, veiculo.getId()); // Atualiza pelo ID
 
