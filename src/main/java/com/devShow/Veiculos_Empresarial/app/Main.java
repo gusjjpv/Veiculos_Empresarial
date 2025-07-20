@@ -347,7 +347,7 @@ public class Main{
                     System.out.print("DATA PREVISTA DE SAÍDA (DD/MM/AAAA): ");
                     String dataStr = input.nextLine();
                     
-                    LocalDate dataPrevista = null;
+                    LocalDate dataPrevista = LocalDate.now();
                     try {
                         // Aceita formato DD/MM/AAAA
                         String[] partesData = dataStr.split("/");
@@ -365,13 +365,13 @@ public class Main{
                         input.nextLine();
                         break;
                     }
+                
                     
-                    usuarioService.iniciarManutencao(admin, placa, descricao, oficina, null);
-                    // if(manutencaoService.iniciarManutencao(placa, descricao, oficina, null)) {
-                    //     System.out.println("✅ Manutenção iniciada com sucesso!");
-                    // } else {
-                    //     System.out.println("❌ Erro ao iniciar manutenção!");
-                    // }
+                     if (manutencaoService.iniciarManutencao(placa, descricao, oficina, java.sql.Date.valueOf(dataPrevista))) {
+                    System.out.println("✅ Manutenção iniciada com sucesso!");
+                } else {
+                    System.out.println("❌ Erro ao iniciar manutenção!");
+                }
                     System.out.println("Pressione ENTER para continuar...");
                     input.nextLine();
                     break;
@@ -385,11 +385,11 @@ public class Main{
                     input.nextLine();
                     
                     usuarioService.concluirManutencao(admin, placa, custo);
-                    // if(usu) {
-                    //     System.out.println("✅ Manutenção finalizada com sucesso!");
-                    // } else {
-                    //     System.out.println("❌ Erro ao finalizar manutenção!");
-                    // }
+                     //if(manutencaoService.concluirManutencao(placa, new java.util.Date(), custo)) {
+                     //    System.out.println("✅ Manutenção finalizada com sucesso!");
+                     //} else {
+                     //    System.out.println("❌ Erro ao finalizar manutenção!");
+                     //}
                     System.out.println("Pressione ENTER para continuar...");
                     input.nextLine();
                     break;
