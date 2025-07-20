@@ -9,10 +9,6 @@ import main.java.com.devShow.Veiculos_Empresarial.model.Usuario;
 
 import java.util.List;
 
-/**
- * Service para operações relacionadas a Motoristas.
- * Contém a lógica de negócio para gerenciamento de motoristas.
- */
 public class MotoristaService {
     
     private MotoristaRepository motoristaRepository;
@@ -27,29 +23,15 @@ public class MotoristaService {
         this.veiculoService = new VeiculoService();
     }
 
-    /**
-     * Cadastra um novo motorista no sistema.
-     * Valida dados e verifica se a CNH já existe.
-     * 
-     * @param nome Nome completo do motorista
-     * @param userName Nome de usuário único
-     * @param senha Senha do motorista
-     * @param setor Setor onde trabalha
-     * @param cnh CNH do motorista
-     * @return true se cadastrou com sucesso, false caso contrário
-     */
     public boolean cadastrarMotorista(String nome, String userName, String senha, String setor, String cnh) {
         try {
-            // Validações de entrada
             validarDadosMotorista(nome, userName, senha, setor, cnh);
             
-            // Verifica se a CNH já existe
             if (motoristaRepository.buscarPorCnh(cnh) != null) {
                 System.err.println("❌ ERRO: CNH " + cnh + " já está cadastrada");
                 return false;
             }
             
-            // Cria novo motorista
             Motorista novoMotorista = new Motorista(nome, userName, senha, setor, cnh);
             motoristaRepository.salvar(novoMotorista);
             
@@ -67,17 +49,7 @@ public class MotoristaService {
         
         return false;
     }
-    
-    /**
-     * Atualiza dados de um motorista existente.
-     * 
-     * @param cnhDoMotorista CNH do motorista a ser atualizado
-     * @param novoNome Novo nome
-     * @param novoSetor Novo setor
-     * @param novoUsername Novo username
-     * @param novaSenha Nova senha
-     * @return true se atualizou com sucesso, false caso contrário
-     */
+
     public boolean atualizarDadosDeMotorista(String cnhDoMotorista, String novoNome, String novoSetor, String novoUsername, String novaSenha) {
         try {
             Motorista motoristaParaAtualizar = motoristaRepository.buscarPorCnh(cnhDoMotorista);
@@ -87,7 +59,6 @@ public class MotoristaService {
                 return false;
             }
 
-            // Validações dos novos dados
             validarDadosMotorista(novoNome, novoUsername, novaSenha, novoSetor, cnhDoMotorista);
 
             System.out.println("Dados antigos: " + motoristaParaAtualizar);
@@ -247,7 +218,7 @@ public class MotoristaService {
         if (cnh.length() != 11) {
             throw new IllegalArgumentException("CNH deve ter 11 dígitos");
         }
-        
+
         if (!cnh.matches("\\d{11}")) {
             throw new IllegalArgumentException("CNH deve conter apenas números");
         }
