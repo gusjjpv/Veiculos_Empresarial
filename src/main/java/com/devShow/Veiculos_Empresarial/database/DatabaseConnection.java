@@ -122,7 +122,7 @@ public class DatabaseConnection {
                     cor TEXT,
                     quilometragem REAL DEFAULT 0,
                     status TEXT NOT NULL DEFAULT 'DISPONIVEL' CHECK (status IN ('DISPONIVEL', 'EM_USO', 'MANUTENCAO', 'INDISPONIVEL')),
-                    ultima_data_revisao DATE,
+                    ultima_data_revisao TEXT,
                     data_criacao TIMESTAMP DEFAULT CURRENT_TIMESTAMP
                 )
             """);
@@ -150,9 +150,9 @@ public class DatabaseConnection {
                 CREATE TABLE IF NOT EXISTS manutencoes (
                     id INTEGER PRIMARY KEY AUTOINCREMENT,
                     veiculo_id INTEGER NOT NULL,
-                    data_inicio DATE NOT NULL,
-                    data_saida_prevista DATE,
-                    data_saida_real DATE,
+                    data_inicio TEXT NOT NULL,
+                    data_saida_prevista TEXT,
+                    data_saida_real TEXT,
                     descricao_servico TEXT NOT NULL,
                     custo_real REAL,
                     nome_oficina TEXT,
