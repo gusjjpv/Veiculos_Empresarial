@@ -5,11 +5,15 @@ import main.java.com.devShow.Veiculos_Empresarial.model.Manutencao;
 import main.java.com.devShow.Veiculos_Empresarial.model.Veiculo;
 
 import java.sql.*;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
 public class ManutencaoRepository {
+
+    private final SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy");
 
     private VeiculoRepository veiculoRepository = new VeiculoRepository();
 
@@ -23,12 +27,11 @@ public class ManutencaoRepository {
             pstmt.setInt(1, manutencao.getVeiculo().getId());
             
             // Conversão correta de java.util.Date para o banco
-            pstmt.setDate(2, new java.sql.Date(manutencao.getDataEntrada().getTime()));
-            
+            pstmt.setString(2, sdf.format(manutencao.getDataEntrada()));
             if (manutencao.getDataSaidaPrevista() != null) {
-                pstmt.setDate(3, new java.sql.Date(manutencao.getDataSaidaPrevista().getTime()));
+                pstmt.setString(3, sdf.format(manutencao.getDataSaidaPrevista()));
             } else {
-                pstmt.setNull(3, Types.DATE);
+                pstmt.setNull(3, Types.VARCHAR);
             }
             
             pstmt.setString(4, manutencao.getDescricaoServico());
@@ -56,9 +59,9 @@ public class ManutencaoRepository {
              PreparedStatement pstmt = conn.prepareStatement(sql)) {
             
             if (manutencao.getDataSaidaReal() != null) {
-                pstmt.setDate(1, new java.sql.Date(manutencao.getDataSaidaReal().getTime()));
+                pstmt.setString(1, sdf.format(manutencao.getDataSaidaReal()));
             } else {
-                pstmt.setNull(1, Types.DATE);
+                pstmt.setNull(1, Types.VARCHAR);
             }
             
             pstmt.setDouble(2, manutencao.getCustoReal());
@@ -139,9 +142,17 @@ public class ManutencaoRepository {
         String oficina = rs.getString("nome_oficina");
         double custo = rs.getDouble("custo_real");
 
-        Date dataEntrada = rs.getDate("data_inicio");
-        Date dataSaidaPrevista = rs.getDate("data_saida_prevista");
-        Date dataSaidaReal = rs.getDate("data_saida_real");
+        // CORRIGIDO: Lê as datas como String e converte de volta para Date
+        Date dataEntrada = null;
+        Date dataSaidaPrevista = null;
+        Date dataSaidaReal = null;
+        try {
+            if (rs.getString("data_inicio") != null) dataEntrada = sdf.parse(rs.getString("data_inicio"));
+            if (rs.getString("data_saida_prevista") != null) dataSaidaPrevista = sdf.parse(rs.getString("data_saida_prevista"));
+            if (rs.getString("data_saida_real") != null) dataSaidaReal = sdf.parse(rs.getString("data_saida_real"));
+        } catch (ParseException e) {
+            System.err.println("Erro ao converter data da manutenção ID " + id + ": " + e.getMessage());
+        }
 
         Veiculo veiculo = veiculoRepository.buscarPorId(veiculoId);
 
