@@ -85,7 +85,7 @@ public class ManutencaoRepository {
             
             try (ResultSet rs = pstmt.executeQuery()) {
                 if (rs.next()) {
-                    return criarManutencaoDoResultSet(rs); 
+                    return criarManutencaoDoResultSet(rs, conn); 
                 }
             }
         } catch (SQLException e) {
@@ -98,14 +98,17 @@ public class ManutencaoRepository {
         String sql = "SELECT * FROM manutencoes";
         List<Manutencao> manutencoes = new ArrayList<>();
 
+        // O try-with-resources agora gere todos os recursos abertos aqui
         try (Connection conn = DatabaseConnection.getInstance().getConnection();
              Statement stmt = conn.createStatement();
              ResultSet rs = stmt.executeQuery(sql)) {
 
             while (rs.next()) {
-                manutencoes.add(criarManutencaoDoResultSet(rs));
+                // CORRIGIDO: Passamos a conexão 'conn' para o método auxiliar
+                manutencoes.add(criarManutencaoDoResultSet(rs, conn));
             }
         } catch (SQLException e) {
+            // O erro "stmt pointer is closed" deve aparecer aqui
             System.err.println("Erro ao listar manutenções: " + e.getMessage());
         }
         return manutencoes;
@@ -135,7 +138,7 @@ public class ManutencaoRepository {
         }
     }
 
-    private Manutencao criarManutencaoDoResultSet(ResultSet rs) throws SQLException {
+    private Manutencao criarManutencaoDoResultSet(ResultSet rs, Connection conn) throws SQLException {
         int id = rs.getInt("id");
         int veiculoId = rs.getInt("veiculo_id");
         String descricao = rs.getString("descricao_servico");
@@ -154,7 +157,7 @@ public class ManutencaoRepository {
             System.err.println("Erro ao converter data da manutenção ID " + id + ": " + e.getMessage());
         }
 
-        Veiculo veiculo = veiculoRepository.buscarPorId(veiculoId);
+        Veiculo veiculo = veiculoRepository.buscarPorId(veiculoId, conn);
 
         return new Manutencao(id, veiculo, descricao, oficina, dataEntrada, dataSaidaPrevista, dataSaidaReal, custo);
     }

@@ -50,11 +50,10 @@ public class VeiculoRepository {
             }
         }
     }
-    public Veiculo buscarPorId(int id) {
+    public Veiculo buscarPorId(int id, Connection conn) {
         String sql = "SELECT * FROM veiculos WHERE id = ?";
-        try (Connection conn = DatabaseConnection.getInstance().getConnection();
-             PreparedStatement pstmt = conn.prepareStatement(sql)) {
-
+        
+        try (PreparedStatement pstmt = conn.prepareStatement(sql)) {
             pstmt.setInt(1, id);
             try (ResultSet rs = pstmt.executeQuery()) {
                 if (rs.next()) {
@@ -62,7 +61,7 @@ public class VeiculoRepository {
                 }
             }
         } catch (SQLException e) {
-            System.err.println("Erro ao buscar veículo por ID: " + e.getMessage());
+            System.err.println("Erro ao procurar veículo por ID: " + e.getMessage());
         }
         return null;
     }

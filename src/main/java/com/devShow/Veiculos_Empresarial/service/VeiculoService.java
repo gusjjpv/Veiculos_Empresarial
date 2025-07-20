@@ -71,7 +71,7 @@ public class VeiculoService {
     }
 
     public Veiculo buscarVeiculoPorId(int id) {
-        return veiculoRepository.buscarPorId(id);
+        return veiculoRepository.buscarPorId(id, null);
     }
 
     public List<Veiculo> listarTodosVeiculos() {

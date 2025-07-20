@@ -103,7 +103,7 @@ public class RegistroUsoService {
     public boolean finalizarUsoVeiculo(int idRegistro, double quilometragemFinal) {
         try {
             // Busca o registro
-            RegistroUso registro = registroUsoRepository.buscarPorId(idRegistro);
+            RegistroUso registro = registroUsoRepository.buscarPorId(idRegistro, null);
             if (registro == null) {
                 throw new IllegalArgumentException("Registro com ID " + idRegistro + " não encontrado");
             }

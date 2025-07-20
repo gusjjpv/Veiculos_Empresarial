@@ -113,13 +113,12 @@ public class RegistroUsoRepository {
      * @param id O ID do registro de uso a ser buscado.
      * @return O objeto RegistroUso encontrado, ou null se não existir.
      */
-    public RegistroUso buscarPorId(int id) {
+    public RegistroUso buscarPorId(int id, Connection conn) {
         // SQL alinhado com DatabaseConnection: seleciona todas as colunas de registros_uso
         String sql = "SELECT * FROM registros_uso WHERE id = ?";
         RegistroUso registro = null;
 
-        try (Connection conn = DatabaseConnection.getInstance().getConnection();
-             PreparedStatement pstmt = conn.prepareStatement(sql)) {
+        try (PreparedStatement pstmt = conn.prepareStatement(sql)) {
 
             pstmt.setInt(1, id);
 
@@ -158,7 +157,7 @@ public class RegistroUsoRepository {
         String destinoOuFinalidade = rs.getString("destino_ou_finalidade");
 
         // Busca os objetos completos usando seus repositórios (por ID)
-        Veiculo veiculo = veiculoRepository.buscarPorId(veiculoId);
+        Veiculo veiculo = veiculoRepository.buscarPorId(veiculoId, null);
         Motorista motorista = motoristaRepository.buscarPorId(motoristaId);
         // O objeto Usuario completo virá dentro do objeto Motorista
         Usuario usuario = (motorista != null) ? motorista.getUsuario() : null;
