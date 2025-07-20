@@ -78,7 +78,6 @@ public class ManutencaoService {
 
 public boolean excluirManutencao(String placaVeiculo) {
         try {
-            // Passo 1: Buscar o veículo pela placa para obter o ID e o objeto completo.
             Veiculo veiculo = veiculoRepository.buscarVeiculoPorPlaca(placaVeiculo);
             if (veiculo == null) {
                 throw new Exception("Veículo com placa " + placaVeiculo + " não encontrado.");
@@ -90,14 +89,12 @@ public boolean excluirManutencao(String placaVeiculo) {
                 throw new Exception("Nenhuma manutenção em andamento encontrada para o veículo " + placaVeiculo);
             }
 
-            // Passo 3 (Regra de Negócio): Se vamos excluir a manutenção ativa, o veículo deve voltar a ficar disponível.
             if (veiculo.getStatus() == StatusVeiculo.MANUTENCAO) {
                 System.out.println("SERVICE: Revertendo status do veículo para DISPONIVEL...");
                 veiculo.setStatus(StatusVeiculo.DISPONIVEL);
                 veiculoRepository.atualizar(veiculo);
             }
 
-            // Passo 4: Executar a exclusão do registro da manutenção, usando o ID que encontramos.
             return manutencaoRepository.excluir(manutencaoAtiva.getId());
 
         } catch (Exception e) {

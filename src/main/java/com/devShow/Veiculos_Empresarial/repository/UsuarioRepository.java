@@ -9,7 +9,6 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 
 public class UsuarioRepository {
-    // salvar usuario no banco
     public void salvar(Usuario usuario) {
         String sql = "INSERT INTO usuarios (nome, user_name, senha, tipo) VALUES (?, ?, ?, ?)";
 
@@ -31,7 +30,6 @@ public class UsuarioRepository {
         }
     }
 
-    // busca por nome
     public Usuario buscarPorUsername(String username) {
         String sql = "SELECT * FROM usuarios WHERE user_name = ?";
         Usuario usuario = null;

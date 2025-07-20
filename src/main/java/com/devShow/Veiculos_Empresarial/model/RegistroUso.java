@@ -13,7 +13,6 @@ public class RegistroUso {
     private double kmRetorno;
     private String destinoOuFinalidade;
 
-    // Construtor para iniciar um novo registro (sem id, dataHoraRetorno e kmRetorno iniciais)
     public RegistroUso(Veiculo veiculo, Motorista motorista, Date dataHoraSaida, 
                       double kmSaida, String destinoOuFinalidade) {
         this.veiculo = veiculo;
@@ -51,7 +50,6 @@ public class RegistroUso {
         this.kmSaida = kmSaida;
         this.kmRetorno = kmRetorno;
         this.destinoOuFinalidade = destinoOuFinalidade;
-        // O usuário já está implícito no motorista, então não precisamos armazenar separadamente
     }
 
     public int getId() {
@@ -86,11 +84,6 @@ public class RegistroUso {
         return destinoOuFinalidade;
     }
 
-    /**
-     * Retorna o objeto Usuario associado a este registro.
-     * O usuário vem do motorista associado ao registro.
-     * @return O objeto Usuario do motorista.
-     */
     public Usuario getUsuario() {
         return (motorista != null) ? motorista.getUsuario() : null;
     }

@@ -86,7 +86,6 @@ public class VeiculoRepository {
         return veiculo;
     }
 
-    
 
     private Veiculo criarVeiculoDoResultSet(ResultSet rs) throws SQLException {
         int id = rs.getInt("id"); 
@@ -98,28 +97,23 @@ public class VeiculoRepository {
         double quilometragemAtual = rs.getDouble("quilometragem"); 
         StatusVeiculo status = StatusVeiculo.valueOf(rs.getString("status"));
         
-        // Tratamento mais flexível para a data de revisão
         Date ultimaDataDeRevisao = null;
         try {
-            // Tenta primeiro como Date do SQL
             java.sql.Date sqlDate = rs.getDate("ultima_data_revisao");
             if (sqlDate != null) {
                 ultimaDataDeRevisao = new Date(sqlDate.getTime());
             }
         } catch (SQLException e) {
-            // Se falhar, tenta como Long (timestamp)
             try {
                 long timestamp = rs.getLong("ultima_data_revisao");
                 if (!rs.wasNull()) {
                     ultimaDataDeRevisao = new Date(timestamp);
                 }
             } catch (SQLException e2) {
-                // Se falhar também, deixa como null
                 ultimaDataDeRevisao = null;
             }
         }
 
-        // CORRIGIDO: Usando o construtor de Veiculo que recebe o ID
         return new Veiculo(id, placa, modelo, marca, ano, cor, status, quilometragemAtual, ultimaDataDeRevisao);
     }
 
@@ -140,7 +134,7 @@ public class VeiculoRepository {
             } else {
                 pstmt.setNull(7, Types.VARCHAR);
             }
-            pstmt.setInt(8, veiculo.getId()); // Atualiza pelo ID
+            pstmt.setInt(8, veiculo.getId());
 
             int affectedRows = pstmt.executeUpdate();
             return affectedRows > 0;
@@ -150,7 +144,7 @@ public class VeiculoRepository {
         }
     }
 
-    public boolean delete(int id) { // Exclui por ID
+    public boolean delete(int id) {
         String sql = "DELETE FROM veiculos WHERE id = ?;";
         try (Connection conn = DatabaseConnection.getInstance().getConnection();
              PreparedStatement pstmt = conn.prepareStatement(sql)) {

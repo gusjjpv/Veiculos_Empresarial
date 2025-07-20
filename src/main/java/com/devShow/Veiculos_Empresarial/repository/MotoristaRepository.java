@@ -11,7 +11,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class MotoristaRepository {
-    //salvar motorista no banco
     public void salvar(Motorista motorista) {
         String sqlUsuario = "INSERT INTO usuarios (nome, user_name, senha, tipo) VALUES (?, ?, ?, ?)";
         String sqlMotorista = "INSERT INTO motoristas (setor, cnh, usuario_id) VALUES (?, ?, ?)";
@@ -153,12 +152,10 @@ public class MotoristaRepository {
         try (Connection conn = DatabaseConnection.getInstance().getConnection();
             PreparedStatement pstmt = conn.prepareStatement(sql)) {
 
-        // Agora estamos passando o usuarioId para a cláusula WHERE correta
             pstmt.setInt(1, usuarioId);
 
             try (ResultSet rs = pstmt.executeQuery()) {
                 if (rs.next()) {
-                // Supondo que você tenha este método para criar o objeto
                 return criarMotoristaCompletoDoResultSet(rs);
                 }
             }
@@ -180,8 +177,7 @@ public class MotoristaRepository {
         String cnh = rs.getString("cnh");
         boolean motoristaAtivo = rs.getBoolean("motorista_ativo");
         
-        return new Motorista(motoristaId, nome, username, senha, ehAdm, usuarioAtivo, 
-                           setor, cnh, usuarioId, motoristaAtivo);
+        return new Motorista(motoristaId, nome, username, senha, ehAdm, usuarioAtivo, setor, cnh, usuarioId, motoristaAtivo);
     }
 
     public void atualizar(Motorista motorista) {
@@ -281,11 +277,6 @@ public class MotoristaRepository {
         }
     }
 
-    /**
-     * Busca um motorista pelo seu CNH, incluindo o ID do motorista.
-     * @param cnh O CNH do motorista a ser buscado.
-     * @return O objeto Motorista encontrado com ID, ou null se não existir.
-     */
     public Motorista buscarPorCnhComId(String cnh) {
         String sql = "SELECT u.id as usuario_id, u.nome, u.user_name, u.senha, u.tipo, u.ativo as usuario_ativo, " +
                      "m.id as motorista_id, m.setor, m.cnh, m.ativo as motorista_ativo " +
@@ -308,5 +299,4 @@ public class MotoristaRepository {
         }
         return null;
     }
-
 }

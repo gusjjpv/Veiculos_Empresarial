@@ -49,23 +49,18 @@ public class Motorista extends Usuario {
         this.cnh = cnh;
     }
 
-       public void setUsuarioId(int usuarioId) { // Setter para o ID da FK 'usuario_id'
+       public void setUsuarioId(int usuarioId) {
         this.usuarioId = usuarioId;
     }
 
-       public boolean isAtivoMotorista() { // Getter para o atributo 'ativoMotorista'
+       public boolean isAtivoMotorista() {
         return ativoMotorista;
     }
 
-    public void setAtivoMotorista(boolean ativoMotorista) { // Setter para o atributo 'ativoMotorista'
+    public void setAtivoMotorista(boolean ativoMotorista) {
         this.ativoMotorista = ativoMotorista;
     }
 
-    /**
-     * Retorna o objeto Usuario associado a este motorista.
-     * Como Motorista herda de Usuario, retorna uma referência para si mesmo.
-     * @return O objeto Usuario (this).
-     */
     public Usuario getUsuario() {
         return this;
     }
@@ -73,12 +68,12 @@ public class Motorista extends Usuario {
     @Override
     public String toString() {
         return "Motorista{" +
-               "id=" + id + // ID do motorista
+               "id=" + id +
                ", setor='" + setor + '\'' +
                ", cnh='" + cnh + '\'' +
-               ", usuarioId=" + usuarioId + // ID do usuário associado
-               ", ativoMotorista=" + ativoMotorista + // Ativo do motorista
-               ", " + super.toString() + // Inclui o toString da superclasse (Usuario)
+               ", usuarioId=" + usuarioId +
+               ", ativoMotorista=" + ativoMotorista +
+               ", " + super.toString() +
                '}';
     }
 }

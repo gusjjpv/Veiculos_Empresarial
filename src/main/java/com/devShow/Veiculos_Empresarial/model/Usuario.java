@@ -8,13 +8,12 @@ public class Usuario {
     private boolean ehAdm;
     private boolean ativo;
 
-     // Construtor para criar novo usuário (sem ID, 'ativo' padrão TRUE)
     public Usuario(String nome, String username, String senha, boolean ehAdm){
         this.nome = nome;
         this.username = username;
         this.senha = senha;
         this.ehAdm = ehAdm;
-        this.ativo = true; // Por padrão, o usuário está ativo
+        this.ativo = true;
     }
 
     // Construtor para carregar usuário do banco (com ID e 'ativo')

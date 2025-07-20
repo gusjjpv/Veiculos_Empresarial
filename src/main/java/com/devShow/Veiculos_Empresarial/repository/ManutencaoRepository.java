@@ -26,7 +26,6 @@ public class ManutencaoRepository {
 
             pstmt.setInt(1, manutencao.getVeiculo().getId());
             
-            // Conversão correta de java.util.Date para o banco
             pstmt.setString(2, sdf.format(manutencao.getDataEntrada()));
             if (manutencao.getDataSaidaPrevista() != null) {
                 pstmt.setString(3, sdf.format(manutencao.getDataSaidaPrevista()));
@@ -98,17 +97,14 @@ public class ManutencaoRepository {
         String sql = "SELECT * FROM manutencoes";
         List<Manutencao> manutencoes = new ArrayList<>();
 
-        // O try-with-resources agora gere todos os recursos abertos aqui
         try (Connection conn = DatabaseConnection.getInstance().getConnection();
              Statement stmt = conn.createStatement();
              ResultSet rs = stmt.executeQuery(sql)) {
 
             while (rs.next()) {
-                // CORRIGIDO: Passamos a conexão 'conn' para o método auxiliar
                 manutencoes.add(criarManutencaoDoResultSet(rs, conn));
             }
         } catch (SQLException e) {
-            // O erro "stmt pointer is closed" deve aparecer aqui
             System.err.println("Erro ao listar manutenções: " + e.getMessage());
         }
         return manutencoes;
@@ -145,7 +141,6 @@ public class ManutencaoRepository {
         String oficina = rs.getString("nome_oficina");
         double custo = rs.getDouble("custo_real");
 
-        // CORRIGIDO: Lê as datas como String e converte de volta para Date
         Date dataEntrada = null;
         Date dataSaidaPrevista = null;
         Date dataSaidaReal = null;

@@ -122,13 +122,6 @@ public class MotoristaService {
         return novoRegistro != null;
     }
 
-
-    /**
-     * Busca um motorista por CNH.
-     * 
-     * @param cnh CNH do motorista
-     * @return Motorista encontrado ou null se não existir
-     */
     public Motorista buscarMotorista(String cnh) {
         if (cnh == null || cnh.trim().isEmpty()) {
             System.err.println("❌ CNH é obrigatória para busca");
@@ -144,21 +137,10 @@ public class MotoristaService {
         return motorista;
     }
 
-    /**
-     * Busca um motorista por ID.
-     * 
-     * @param id ID do motorista
-     * @return Motorista encontrado ou null se não existir
-     */
     public Motorista buscarMotoristaPorId(int id) {
         return motoristaRepository.buscarPorId(id);
     }
 
-    /**
-     * Lista todos os motoristas cadastrados.
-     * 
-     * @return Lista de todos os motoristas
-     */
     public List<Motorista> listarTodosMotoristas() {
         List<Motorista> listaMotoristas = motoristaRepository.listarTodos();
         
@@ -188,25 +170,12 @@ public class MotoristaService {
         System.out.println("SERVICE: Motorista pode ser excluído. Solicitando remoção ao repositório...");
         motoristaRepository.remover(cnh);
     }
-    
-    /**
-     * Verifica se um motorista está ativo.
-     * 
-     * @param cnh CNH do motorista
-     * @return true se está ativo, false caso contrário
-     */
+
     public boolean motoristaEstaAtivo(String cnh) {
         Motorista motorista = buscarMotorista(cnh);
         return motorista != null && motorista.isAtivo();
     }
-    
-    /**
-     * Valida as credenciais de login de um motorista.
-     * 
-     * @param userName Username do motorista
-     * @param senha Senha do motorista
-     * @return Motorista se credenciais válidas, null caso contrário
-     */
+
     public Motorista validarLoginMotorista(String userName, String senha) {
         try {
             if (userName == null || userName.trim().isEmpty()) {
@@ -217,7 +186,6 @@ public class MotoristaService {
                 throw new IllegalArgumentException("Senha é obrigatória");
             }
             
-            // Busca por todos os motoristas e verifica credenciais
             List<Motorista> motoristas = motoristaRepository.listarTodos();
             
             for (Motorista motorista : motoristas) {
@@ -245,51 +213,8 @@ public class MotoristaService {
         
         return null;
     }
-    
-    // /**
-    //  * Gera estatísticas de motoristas.
-    //  * 
-    //  * @return String com estatísticas formatadas
-    //  */
-    // public String gerarEstatisticasMotoristas() {
-    //     List<Motorista> todosMotoristas = motoristaRepository.listarTodos();
-        
-    //     long motoristasAtivos = todosMotoristas.stream().filter(Motorista::isAtivo).count();
-    //     long motoristasInativos = todosMotoristas.size() - motoristasAtivos;
-        
-    //     // Conta motoristas por setor
-    //     var motoristasPorSetor = todosMotoristas.stream()
-    //         .filter(Motorista::isAtivo)
-    //         .collect(java.util.stream.Collectors.groupingBy(
-    //             Motorista::getSetor,
-    //             java.util.stream.Collectors.counting()
-    //         ));
-        
-    //     StringBuilder stats = new StringBuilder();
-    //     stats.append("🚛 ESTATÍSTICAS DE MOTORISTAS\n");
-    //     stats.append("════════════════════════════\n");
-    //     stats.append("Total de motoristas: ").append(todosMotoristas.size()).append("\n");
-    //     stats.append("Motoristas ativos: ").append(motoristasAtivos).append("\n");
-    //     stats.append("Motoristas inativos: ").append(motoristasInativos).append("\n");
-    //     stats.append("\n");
-    //     stats.append("Por setor:\n");
-        
-    //     if (motoristasPorSetor.isEmpty()) {
-    //         stats.append("  Nenhum motorista ativo cadastrado\n");
-    //     } else {
-    //         motoristasPorSetor.forEach((setor, quantidade) -> 
-    //             stats.append("  ").append(setor).append(": ").append(quantidade).append("\n")
-    //         );
-    //     }
-        
-    //     return stats.toString();
-    // }
-    
     // ==================== MÉTODOS AUXILIARES ====================
-    
-    /**
-     * Valida os dados de um motorista.
-     */
+
     private void validarDadosMotorista(String nome, String userName, String senha, String setor, String cnh) {
         if (nome == null || nome.trim().isEmpty()) {
             throw new IllegalArgumentException("Nome é obrigatório");
@@ -323,7 +248,6 @@ public class MotoristaService {
             throw new IllegalArgumentException("CNH deve ter 11 dígitos");
         }
         
-        // Verifica se CNH contém apenas números
         if (!cnh.matches("\\d{11}")) {
             throw new IllegalArgumentException("CNH deve conter apenas números");
         }

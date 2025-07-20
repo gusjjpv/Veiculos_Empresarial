@@ -1,14 +1,9 @@
 package main.java.com.devShow.Veiculos_Empresarial.model;
 
 import java.util.Date;
-import java.time.LocalDate;
-import java.time.temporal.ChronoUnit;
 import java.util.Objects;
 
 public class Veiculo {
-
-    // private static List<Veiculo> frota = new ArrayList<>();
-
     private String placa;
     private String modelo;
     private String marca;
@@ -19,7 +14,6 @@ public class Veiculo {
     private Date ultimaDataDeRevisao;
     private int id;
 
-    // Construtor para criar novo veículo (sem ID, o ID será gerado pelo banco)
     public Veiculo(String placa, String modelo, String marca, int ano, String cor,
             StatusVeiculo status, double quilometragemAtual, Date ultimaDataDeRevisao) {
         this.placa = placa;
@@ -118,49 +112,6 @@ public class Veiculo {
     public void setUltimaDataDeRevisao(Date ultimaDataDeRevisao) {
         this.ultimaDataDeRevisao = ultimaDataDeRevisao;
     }
-
-    public boolean usarVeiculo() {
-        if (this.status == StatusVeiculo.DISPONIVEL) {
-            this.atualizarStatus(StatusVeiculo.EM_USO);
-            System.out.println("Veículo " + this.placa + " agora está EM_USO.");
-            return true;
-        }
-        System.err.println("Ação não permitida: Veículo " + this.placa + " não está disponível. Status atual: " + this.status);
-        return false;
-    }
-
-    public void atualizarStatus(StatusVeiculo novoStatus) {
-        this.setStatus(novoStatus);
-    }
-
-    public boolean atualizarQuilometragem(double novaKm) {
-        if (novaKm >= this.quilometragemAtual) {
-            this.setQuilometragemAtual(novaKm);
-            return true;
-        }
-        System.err.println("Erro: A nova quilometragem (" + novaKm + ") não pode ser menor que a atual (" + this.quilometragemAtual + ").");
-        return false;
-    }
-
-    public boolean verificarNecessidadeRevisao() {
-        final double INTERVALO_KM_REVISAO = 10000.0;
-        final long INTERVALO_MESES_REVISAO = 6;
-        double kmUltimaRevisao = this.quilometragemAtual > INTERVALO_KM_REVISAO ? this.quilometragemAtual - INTERVALO_KM_REVISAO : 0;
-
-        boolean precisaPorKm = (this.quilometragemAtual - kmUltimaRevisao) >= INTERVALO_KM_REVISAO;
-        boolean precisaPorTempo = false;
-        if (this.ultimaDataDeRevisao != null) {
-            long mesesDesdeUltimaRevisao = ChronoUnit.MONTHS.between(
-                this.ultimaDataDeRevisao.toInstant().atZone(java.time.ZoneId.systemDefault()).toLocalDate(),
-                LocalDate.now()
-            );
-            precisaPorTempo = mesesDesdeUltimaRevisao >= INTERVALO_MESES_REVISAO;
-        } else {
-            precisaPorTempo = true; 
-        }
-        return precisaPorKm || precisaPorTempo;
-    }
-
     @Override
     public String toString() {
         return String.format("Veiculo{placa='%s', modelo='%s', status=%s}", placa, modelo, status);

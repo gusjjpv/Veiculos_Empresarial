@@ -505,8 +505,8 @@ public class Main{
                 case 5:
                     limparTela();
                     System.out.println("===== ESTATÍSTICAS DE USO =====");
-                    String estatisticas = registroUsoService.gerarEstatisticasUso();
-                    System.out.println(estatisticas);
+                  //  String estatisticas = registroUsoService.gerarEstatisticasUso();
+                  //  System.out.println(estatisticas);
                     System.out.println("Pressione ENTER para continuar...");
                     input.nextLine();
                     break;
