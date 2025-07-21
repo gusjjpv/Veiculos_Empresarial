@@ -92,7 +92,7 @@ public class UsuarioService {
         if(!admin.getEhAdm()){
             return;
         }
-        veiculoService.atualizarDadosBasicos(placaParaEditar, novoModelo, novaMarca, novoAno, novaCor);
+        veiculoService.atualizarVeiculo(placaParaEditar, novoModelo, novaMarca, novoAno, novaCor);
     }
 
 
@@ -154,7 +154,7 @@ public class UsuarioService {
             return new ArrayList<>();
         }
         
-        List<RegistroUso> historico = registroUsoService.listarTodosRegistros();
+        List<RegistroUso> historico = registroUsoService.listarTodosRegistrosUso();
         
         if (historico.isEmpty()) {
             System.out.println(" Nenhum registro de viagem encontrado.");
@@ -200,7 +200,7 @@ public class UsuarioService {
             return new ArrayList<>();
         }
         
-        List<RegistroUso> historico = registroUsoService.buscarRegistrosPorVeiculo(placa);
+        List<RegistroUso> historico = registroUsoService.buscarRegistros(placa);
         
         if (historico.isEmpty()) {
             System.out.println(" Nenhuma viagem encontrada para o veículo com placa: " + placa);
@@ -212,7 +212,7 @@ public class UsuarioService {
         return historico;
     }
 
-    public boolean excluirRegistroViagem(Usuario admin, int idRegistro) {
+    public boolean excluiRegistroUso(Usuario admin, int idRegistro) {
         if (admin == null || !admin.getEhAdm()) {
             System.err.println(" ACESSO NEGADO: Apenas administradores podem excluir registros de viagem.");
             return false;

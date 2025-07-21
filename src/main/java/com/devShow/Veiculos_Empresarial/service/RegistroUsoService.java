@@ -78,7 +78,7 @@ public class RegistroUsoService {
                             veiculoReal.setStatus(StatusVeiculo.DISPONIVEL);
                             veiculoRepository.atualizar(veiculoReal);
                             
-                            double kmRodados = quilometragemFinal - registro.getKmSaida();
+                            double kmRodados = calcularKmRodados(quilometragemFinal, registro.getKmSaida());
                             
                             System.out.println(" Uso do veículo finalizado com sucesso!");
                             System.out.println("   Registro ID: " + idRegistro);
@@ -105,14 +105,20 @@ public class RegistroUsoService {
         return false;
     }
 
+
+    public double calcularKmRodados(double quilometragemFinal, double kmSaida){
+        return quilometragemFinal - kmSaida;
+    }
+
+
     public List<RegistroUso> listarRegistrosAtivos() {
-        return registroUsoRepository.listarTodos().stream()
+        return registroUsoRepository.listarTodosRegistrosUso().stream()
             .filter(registro -> registro.getDataHoraRetorno() == null)
             .toList();
     }
     
     public List<RegistroUso> listarRegistrosFinalizados() {
-        return registroUsoRepository.listarTodos().stream()
+        return registroUsoRepository.listarTodosRegistrosUso().stream()
             .filter(registro -> registro.getDataHoraRetorno() != null)
             .toList();
     }
@@ -127,7 +133,7 @@ public class RegistroUsoService {
         return registroUsoRepository.buscarPorMotoristaId(motorista.getId());
     }
 
-    public List<RegistroUso> buscarRegistrosPorVeiculo(String placaVeiculo) {
+    public List<RegistroUso> buscarRegistros(String placaVeiculo) {
         Veiculo veiculo = veiculoRepository.buscarVeiculoPorPlaca(placaVeiculo);
         if (veiculo == null) {
             System.err.println(" Veículo não encontrado com placa: " + placaVeiculo);
@@ -154,7 +160,7 @@ public class RegistroUsoService {
     }
 
     private boolean motoristaEstaUsandoVeiculo(int idMotorista) {
-        return registroUsoRepository.listarTodos().stream()
+        return registroUsoRepository.listarTodosRegistrosUso().stream()
             .anyMatch(registro -> registro.getMotorista().getId() == idMotorista && 
                      registro.getDataHoraRetorno() == null);
     }
@@ -180,8 +186,8 @@ public class RegistroUsoService {
         }
     }
     
-    public List<RegistroUso> listarTodosRegistros() {
-        return registroUsoRepository.listarTodos();
+    public List<RegistroUso> listarTodosRegistrosUso() {
+        return registroUsoRepository.listarTodosRegistrosUso();
     }
 
     public boolean excluirRegistro(int idRegistro) {

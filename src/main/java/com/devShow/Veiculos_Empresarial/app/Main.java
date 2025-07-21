@@ -477,7 +477,7 @@ public class Main{
                     String confirmacao = input.nextLine();
                     
                     if(confirmacao.toLowerCase().startsWith("s")) {
-                        if(usuarioService.excluirRegistroViagem(admin, idRegistro)) {
+                        if(usuarioService.excluiRegistroUso(admin, idRegistro)) {
                             System.out.println(" Registro excluído com sucesso!");
                         } else {
                             System.out.println(" Erro ao excluir registro!");

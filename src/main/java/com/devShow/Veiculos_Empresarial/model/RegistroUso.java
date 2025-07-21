@@ -121,15 +121,6 @@ public class RegistroUso {
         this.destinoOuFinalidade = destinoOuFinalidade;
     }
 
-
-    public double calcularKmRodados() {
-        if (kmRetorno >= kmSaida && dataHoraRetorno != null) {
-            return kmRetorno - kmSaida;
-        }
-        return 0.0;
-    }
-
-
     @Override
     public String toString() {
         SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy HH:mm");
@@ -145,7 +136,6 @@ public class RegistroUso {
                            dataRetornoFormatada,
                            kmSaida,
                            kmRetorno,
-                           destinoOuFinalidade,
-                           calcularKmRodados());
+                           destinoOuFinalidade);
     }
 }

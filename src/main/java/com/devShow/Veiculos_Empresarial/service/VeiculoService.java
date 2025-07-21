@@ -87,7 +87,7 @@ public class VeiculoService {
         return veiculoRepository.buscarPorId(id, null);
     }
 
-    public List<Veiculo> listarTodosVeiculos() {
+    public List<Veiculo> listarVeiculos() {
         try {
             return veiculoRepository.findAll();
         } catch (Exception e) {
@@ -100,7 +100,7 @@ public class VeiculoService {
         return veiculoRepository.listarVeiculosDisponiveis();
     }
 
-    public boolean atualizarDadosBasicos(String placaParaBuscar, String novoModelo, String novaMarca, int novoAno, String novaCor){
+    public boolean atualizarVeiculo(String placaParaBuscar, String novoModelo, String novaMarca, int novoAno, String novaCor){
         Veiculo veiculoExistente = veiculoRepository.buscarVeiculoPorPlaca(placaParaBuscar);
         if(veiculoExistente == null){
             System.err.println("SERVIÇO: Erro! Veículo com placa " + placaParaBuscar + " não encontrado.");

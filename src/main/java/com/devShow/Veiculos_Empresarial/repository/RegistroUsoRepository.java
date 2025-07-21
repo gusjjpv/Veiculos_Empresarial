@@ -316,7 +316,7 @@ public class RegistroUsoRepository {
         );
     }
 
-    public List<RegistroUso> listarTodos() {
+    public List<RegistroUso> listarTodosRegistrosUso() {
         String sql = "SELECT * FROM registros_uso";
         List<RegistroUso> registros = new ArrayList<>();
         
