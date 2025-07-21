@@ -12,13 +12,16 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.sql.Types;
-
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
 public class RegistroUsoRepository {
 
+    private final SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy HH:mm:ss");
+    
     private VeiculoRepository veiculoRepository;
     private MotoristaRepository motoristaRepository;
     // private UsuarioRepository usuarioRepository; // Descomentar e injetar se tiver um UsuarioRepository separado
@@ -41,7 +44,7 @@ public class RegistroUsoRepository {
             pstmt.setInt(1, registro.getVeiculo().getId()); 
             pstmt.setInt(2, registro.getMotorista().getId()); 
             pstmt.setInt(3, registro.getUsuario().getId()); 
-            pstmt.setLong(4, registro.getDataHoraSaida().getTime()); 
+            pstmt.setString(4, sdf.format(registro.getDataHoraSaida())); 
             pstmt.setDouble(5, registro.getKmSaida());
             pstmt.setString(6, registro.getDestinoOuFinalidade());
 
@@ -68,9 +71,9 @@ public class RegistroUsoRepository {
              PreparedStatement pstmt = conn.prepareStatement(sql)) {
 
             if (registro.getDataHoraRetorno() != null) {
-                pstmt.setLong(1, registro.getDataHoraRetorno().getTime());
+                pstmt.setString(1, sdf.format(registro.getDataHoraRetorno()));
             } else {
-                pstmt.setNull(1, Types.INTEGER);
+                pstmt.setNull(1, Types.VARCHAR); 
             }
             pstmt.setDouble(2, registro.getKmRetorno());
             pstmt.setInt(3, registro.getId());
@@ -112,23 +115,25 @@ public class RegistroUsoRepository {
         int id = rs.getInt("id");
         int veiculoId = rs.getInt("veiculo_id");
         int motoristaId = rs.getInt("motorista_id");
-        long dataInicio = rs.getLong("data_inicio");
-        
-        // Trata data_fim que pode ser NULL
-        Long dataFimLong = null;
-        if (rs.getObject("data_fim") != null) {
-            dataFimLong = rs.getLong("data_fim");
-        }
         
         double quilometragemInicial = rs.getDouble("quilometragem_inicial");
         double quilometragemFinal = rs.getDouble("quilometragem_final");
         String destinoOuFinalidade = rs.getString("destino_ou_finalidade");
 
+
+        Date dataHoraSaida = null;
+        Date dataHoraRetorno = null;
+        try {
+            if (rs.getString("data_inicio") != null) dataHoraSaida = sdf.parse(rs.getString("data_inicio"));
+            if (rs.getString("data_fim") != null) dataHoraRetorno = sdf.parse(rs.getString("data_fim"));
+        } catch (ParseException e) {
+            System.err.println("Erro ao converter data do registo de uso ID " + id + ": " + e.getMessage());
+        }
+
         Veiculo veiculo = veiculoRepository.buscarPorId(veiculoId, null);
         Motorista motorista = motoristaRepository.buscarPorId(motoristaId);
         Usuario usuario = (motorista != null) ? motorista.getUsuario() : null;
-        Date dataHoraSaida = new Date(dataInicio);
-        Date dataHoraRetorno = (dataFimLong != null) ? new Date(dataFimLong) : null;
+
         if (veiculo != null && motorista != null && usuario != null) {
             return new RegistroUso(
                 id,

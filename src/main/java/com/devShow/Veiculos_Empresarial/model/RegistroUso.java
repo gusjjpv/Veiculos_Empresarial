@@ -1,5 +1,6 @@
 package main.java.com.devShow.Veiculos_Empresarial.model;
 
+import java.text.SimpleDateFormat;
 import java.util.Date;
 
 public class RegistroUso {
@@ -131,12 +132,17 @@ public class RegistroUso {
 
     @Override
     public String toString() {
+        SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy HH:mm");
+        
+        String dataSaidaFormatada = (getDataHoraSaida() != null) ? sdf.format(getDataHoraSaida()) : "N/A";
+        String dataRetornoFormatada = (getDataHoraRetorno() != null) ? sdf.format(getDataHoraRetorno()) : "Em andamento";
+        
         return String.format("RegistroUso{id=%d, veiculo='%s', motorista='%s', saida=%s, retorno=%s, kmSaida=%.1f, kmRetorno=%.1f, destino='%s', kmRodados=%.1f}",
                            id, 
                            veiculo != null ? veiculo.getPlaca() : "null",
                            motorista != null ? motorista.getNome() : "null",
-                           dataHoraSaida,
-                           dataHoraRetorno,
+                           dataSaidaFormatada,
+                           dataRetornoFormatada,
                            kmSaida,
                            kmRetorno,
                            destinoOuFinalidade,
