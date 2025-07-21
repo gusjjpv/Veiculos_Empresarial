@@ -53,15 +53,31 @@ public class VeiculoRepository {
     public Veiculo buscarPorId(int id, Connection conn) {
         String sql = "SELECT * FROM veiculos WHERE id = ?";
         
-        try (PreparedStatement pstmt = conn.prepareStatement(sql)) {
-            pstmt.setInt(1, id);
-            try (ResultSet rs = pstmt.executeQuery()) {
-                if (rs.next()) {
-                    return criarVeiculoDoResultSet(rs);
+        // Se não foi passada uma conexão, cria uma nova
+        if (conn == null) {
+            try (Connection connection = DatabaseConnection.getInstance().getConnection();
+                 PreparedStatement pstmt = connection.prepareStatement(sql)) {
+                pstmt.setInt(1, id);
+                try (ResultSet rs = pstmt.executeQuery()) {
+                    if (rs.next()) {
+                        return criarVeiculoDoResultSet(rs);
+                    }
                 }
+            } catch (SQLException e) {
+                System.err.println("Erro ao procurar veículo por ID: " + e.getMessage());
             }
-        } catch (SQLException e) {
-            System.err.println("Erro ao procurar veículo por ID: " + e.getMessage());
+        } else {
+            // Usa a conexão fornecida
+            try (PreparedStatement pstmt = conn.prepareStatement(sql)) {
+                pstmt.setInt(1, id);
+                try (ResultSet rs = pstmt.executeQuery()) {
+                    if (rs.next()) {
+                        return criarVeiculoDoResultSet(rs);
+                    }
+                }
+            } catch (SQLException e) {
+                System.err.println("Erro ao procurar veículo por ID: " + e.getMessage());
+            }
         }
         return null;
     }

@@ -88,7 +88,7 @@ public class Main{
                 menuControleDeManutencao(admin, input);
             }else if(opcao == 4){
                 limparTela();
-                menuRegistros(input);
+                menuHistoricoViagens(admin, input);
             }else if(opcao == 0){
                 limparTela();
                 break;
@@ -571,5 +571,127 @@ public class Main{
         } catch (Exception e) {
             e.printStackTrace();
         }
+    }
+
+    public static void menuHistoricoViagens(Usuario admin, Scanner input){
+        int opcao;
+        String cnh, placa;
+        int idRegistro;
+        
+        do {
+            System.out.print("===== HISTÓRICO DE VIAGENS (ADMINISTRADOR) =====\n");
+            System.out.print("1. VISUALIZAR TODAS AS VIAGENS\n");
+            System.out.print("2. FILTRAR POR MOTORISTA (CNH)\n");
+            System.out.print("3. FILTRAR POR VEÍCULO (PLACA)\n");
+            System.out.print("4. EXCLUIR REGISTRO DE VIAGEM\n");
+            System.out.print("0. VOLTAR\n>>");
+            opcao = input.nextInt();
+            input.nextLine();
+            
+            switch(opcao) {
+                case 1:
+                    limparTela();
+                    System.out.println("===== HISTÓRICO COMPLETO DE VIAGENS =====");
+                    List<RegistroUso> todasViagens = usuarioService.visualizarHistoricoCompleto(admin);
+                    if(!todasViagens.isEmpty()) {
+                        for(RegistroUso r : todasViagens) {
+                            System.out.println(formatarRegistroDetalhado(r));
+                            System.out.println("─────────────────────────────────────────────────");
+                        }
+                    }
+                    System.out.println("Pressione ENTER para continuar...");
+                    input.nextLine();
+                    break;
+                    
+                case 2:
+                    limparTela();
+                    System.out.print("CNH DO MOTORISTA: ");
+                    cnh = input.nextLine();
+                    System.out.println("===== HISTÓRICO POR MOTORISTA =====");
+                    List<RegistroUso> viagensMotorista = usuarioService.visualizarHistoricoPorMotorista(admin, cnh);
+                    if(!viagensMotorista.isEmpty()) {
+                        for(RegistroUso r : viagensMotorista) {
+                            System.out.println(formatarRegistroDetalhado(r));
+                            System.out.println("─────────────────────────────────────────────────");
+                        }
+                    }
+                    System.out.println("Pressione ENTER para continuar...");
+                    input.nextLine();
+                    break;
+                    
+                case 3:
+                    limparTela();
+                    System.out.print("PLACA DO VEÍCULO: ");
+                    placa = input.nextLine();
+                    System.out.println("===== HISTÓRICO POR VEÍCULO =====");
+                    List<RegistroUso> viagensVeiculo = usuarioService.visualizarHistoricoPorVeiculo(admin, placa);
+                    if(!viagensVeiculo.isEmpty()) {
+                        for(RegistroUso r : viagensVeiculo) {
+                            System.out.println(formatarRegistroDetalhado(r));
+                            System.out.println("─────────────────────────────────────────────────");
+                        }
+                    }
+                    System.out.println("Pressione ENTER para continuar...");
+                    input.nextLine();
+                    break;
+                    
+                case 4:
+                    limparTela();
+                    System.out.print("ID DO REGISTRO PARA EXCLUIR: ");
+                    idRegistro = input.nextInt();
+                    input.nextLine();
+                    
+                    System.out.print("⚠️ CONFIRMAÇÃO: Deseja realmente excluir o registro ID " + idRegistro + "? (S/N): ");
+                    String confirmacao = input.nextLine();
+                    
+                    if(confirmacao.toLowerCase().startsWith("s")) {
+                        if(usuarioService.excluirRegistroViagem(admin, idRegistro)) {
+                            System.out.println("✅ Registro excluído com sucesso!");
+                        } else {
+                            System.out.println("❌ Erro ao excluir registro!");
+                        }
+                    } else {
+                        System.out.println("❌ Operação cancelada.");
+                    }
+                    System.out.println("Pressione ENTER para continuar...");
+                    input.nextLine();
+                    break;
+                    
+                case 0:
+                    limparTela();
+                    break;
+                    
+                default:
+                    limparTela();
+                    System.err.println("ERRO: opção inválida");
+                    break;
+            }
+        } while (opcao != 0);
+    }
+
+    public static String formatarRegistroDetalhado(RegistroUso registro) {
+        StringBuilder sb = new StringBuilder();
+        sb.append("🆔 ID: ").append(registro.getId()).append("\n");
+        sb.append("👤 Motorista: ").append(registro.getMotorista().getNome())
+          .append(" (CNH: ").append(registro.getMotorista().getCnh()).append(")\n");
+        sb.append("🚗 Veículo: ").append(registro.getVeiculo().getPlaca())
+          .append(" - ").append(registro.getVeiculo().getMarca())
+          .append(" ").append(registro.getVeiculo().getModelo()).append("\n");
+        sb.append("📍 Destino: ").append(registro.getDestinoOuFinalidade()).append("\n");
+        sb.append("🕐 Saída: ").append(registro.getDataHoraSaida()).append("\n");
+        
+        if(registro.getDataHoraRetorno() != null) {
+            sb.append("🏁 Retorno: ").append(registro.getDataHoraRetorno()).append("\n");
+            sb.append("🛣️ Km Inicial: ").append(registro.getKmSaida())
+              .append(" | Km Final: ").append(registro.getKmRetorno()).append("\n");
+            sb.append("📊 Distância: ").append(registro.getKmRetorno() - registro.getKmSaida())
+              .append(" km\n");
+            sb.append("✅ Status: FINALIZADA");
+        } else {
+            sb.append("🛣️ Km Inicial: ").append(registro.getKmSaida()).append("\n");
+            sb.append("⏳ Status: EM ANDAMENTO");
+        }
+        
+        return sb.toString();
     }
 }

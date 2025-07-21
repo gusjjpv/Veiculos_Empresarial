@@ -5,6 +5,7 @@ import main.java.com.devShow.Veiculos_Empresarial.model.RegistroUso;
 import main.java.com.devShow.Veiculos_Empresarial.model.Veiculo;
 import main.java.com.devShow.Veiculos_Empresarial.model.Motorista;
 import main.java.com.devShow.Veiculos_Empresarial.model.Usuario;
+import main.java.com.devShow.Veiculos_Empresarial.model.StatusVeiculo;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -96,17 +97,35 @@ public class RegistroUsoRepository {
         String sql = "SELECT * FROM registros_uso WHERE id = ?";
         RegistroUso registro = null;
 
-        try (PreparedStatement pstmt = conn.prepareStatement(sql)) {
+        // Se não foi passada uma conexão, cria uma nova
+        if (conn == null) {
+            try (Connection connection = DatabaseConnection.getInstance().getConnection();
+                 PreparedStatement pstmt = connection.prepareStatement(sql)) {
 
-            pstmt.setInt(1, id);
+                pstmt.setInt(1, id);
 
-            try (ResultSet rs = pstmt.executeQuery()) {
-                if (rs.next()) {
-                    registro = criarRegistroUsoDoResultSet(rs);
+                try (ResultSet rs = pstmt.executeQuery()) {
+                    if (rs.next()) {
+                        registro = criarRegistroUsoDoResultSet(rs);
+                    }
                 }
+            } catch (SQLException e) {
+                System.err.println("Erro ao buscar registro de uso por ID: " + e.getMessage());
             }
-        } catch (SQLException e) {
-            System.err.println("Erro ao buscar registro de uso por ID: " + e.getMessage());
+        } else {
+            // Usa a conexão fornecida
+            try (PreparedStatement pstmt = conn.prepareStatement(sql)) {
+
+                pstmt.setInt(1, id);
+
+                try (ResultSet rs = pstmt.executeQuery()) {
+                    if (rs.next()) {
+                        registro = criarRegistroUsoDoResultSet(rs);
+                    }
+                }
+            } catch (SQLException e) {
+                System.err.println("Erro ao buscar registro de uso por ID: " + e.getMessage());
+            }
         }
         return registro;
     }
@@ -147,9 +166,88 @@ public class RegistroUsoRepository {
                 destinoOuFinalidade
             );
         } else {
-            System.err.println("Aviso: Registro de uso com ID " + id + " não pôde ser totalmente carregado devido a Veículo, Motorista ou Usuário ausente.");
+            // Diagnóstico detalhado do problema
+            StringBuilder problemas = new StringBuilder();
+            if (veiculo == null) problemas.append("Veículo ID ").append(veiculoId).append(" não encontrado; ");
+            if (motorista == null) problemas.append("Motorista ID ").append(motoristaId).append(" não encontrado; ");
+            if (usuario == null && motorista != null) problemas.append("Usuário do motorista ausente; ");
+            
+            System.err.println("⚠️ Registro órfão ID " + id + ": " + problemas.toString());
             return null;
         }
+    }
+    
+    /**
+     * Busca um registro por ID de forma mais robusta, incluindo informações básicas mesmo se dados relacionados estiverem ausentes
+     */
+    public RegistroUso buscarPorIdRobusto(int id) {
+        String sql = "SELECT * FROM registros_uso WHERE id = ?";
+        
+        try (Connection connection = DatabaseConnection.getInstance().getConnection();
+             PreparedStatement pstmt = connection.prepareStatement(sql)) {
+
+            pstmt.setInt(1, id);
+
+            try (ResultSet rs = pstmt.executeQuery()) {
+                if (rs.next()) {
+                    // Primeiro tenta o método normal
+                    RegistroUso registro = criarRegistroUsoDoResultSet(rs);
+                    if (registro != null) {
+                        return registro;
+                    }
+                    
+                    // Se falhou, cria um registro básico para permitir operações como exclusão
+                    return criarRegistroBasico(rs);
+                }
+            }
+        } catch (SQLException e) {
+            System.err.println("Erro ao buscar registro de uso por ID: " + e.getMessage());
+        }
+        return null;
+    }
+    
+    /**
+     * Cria um registro básico apenas com os dados essenciais, sem validar referências
+     */
+    private RegistroUso criarRegistroBasico(ResultSet rs) throws SQLException {
+        int id = rs.getInt("id");
+        int veiculoId = rs.getInt("veiculo_id");
+        int motoristaId = rs.getInt("motorista_id");
+        
+        double quilometragemInicial = rs.getDouble("quilometragem_inicial");
+        double quilometragemFinal = rs.getDouble("quilometragem_final");
+        String destinoOuFinalidade = rs.getString("destino_ou_finalidade");
+
+        Date dataHoraSaida = null;
+        Date dataHoraRetorno = null;
+        try {
+            if (rs.getString("data_inicio") != null) dataHoraSaida = sdf.parse(rs.getString("data_inicio"));
+            if (rs.getString("data_fim") != null) dataHoraRetorno = sdf.parse(rs.getString("data_fim"));
+        } catch (ParseException e) {
+            System.err.println("Erro ao converter data do registro básico ID " + id + ": " + e.getMessage());
+        }
+
+        // Cria objetos básicos apenas com IDs para permitir operações
+        Veiculo veiculo = new Veiculo(veiculoId, "PLACA_AUSENTE", "MODELO_AUSENTE", "MARCA_AUSENTE", 2000, "COR_AUSENTE", 
+                                     StatusVeiculo.DISPONIVEL, 0.0, null);
+        
+        Motorista motorista = new Motorista("MOTORISTA_AUSENTE", "usuario_ausente", "senha", "SETOR_AUSENTE", "CNH_AUSENTE");
+        motorista.setId(motoristaId);
+        
+        Usuario usuario = new Usuario("USUARIO_AUSENTE", "usuario_ausente", "senha", false);
+        usuario.setId(motoristaId);
+        
+        return new RegistroUso(
+            id,
+            veiculo,
+            motorista,
+            usuario,
+            dataHoraSaida,
+            dataHoraRetorno,
+            quilometragemInicial,
+            quilometragemFinal,
+            destinoOuFinalidade
+        );
     }
 
     public List<RegistroUso> listarTodos() {
@@ -238,5 +336,77 @@ public class RegistroUsoRepository {
             System.err.println("Erro ao verificar registros de uso não finalizados para veículo ID " + veiculoId + ": " + e.getMessage());
         }
         return false;
+    }
+    
+    /**
+     * Exclui um registro de uso pelo ID
+     */
+    public boolean excluir(int id) {
+        String sql = "DELETE FROM registros_uso WHERE id = ?";
+        
+        try (Connection conn = DatabaseConnection.getInstance().getConnection();
+             PreparedStatement pstmt = conn.prepareStatement(sql)) {
+            
+            pstmt.setInt(1, id);
+            
+            int affectedRows = pstmt.executeUpdate();
+            return affectedRows > 0;
+            
+        } catch (SQLException e) {
+            System.err.println("Erro ao excluir registro de uso: " + e.getMessage());
+            return false;
+        }
+    }
+    
+    /**
+     * Busca registros por ID do motorista
+     */
+    public List<RegistroUso> buscarPorMotoristaId(int motoristaId) {
+        String sql = "SELECT * FROM registros_uso WHERE motorista_id = ?";
+        List<RegistroUso> registros = new ArrayList<>();
+        
+        try (Connection conn = DatabaseConnection.getInstance().getConnection();
+             PreparedStatement pstmt = conn.prepareStatement(sql)) {
+
+            pstmt.setInt(1, motoristaId);
+            
+            try (ResultSet rs = pstmt.executeQuery()) {
+                while (rs.next()) {
+                    RegistroUso registro = criarRegistroUsoDoResultSet(rs);
+                    if (registro != null) {
+                        registros.add(registro);
+                    }
+                }
+            }
+        } catch (SQLException e) {
+            System.err.println("Erro ao buscar registros por motorista ID " + motoristaId + ": " + e.getMessage());
+        }
+        return registros;
+    }
+    
+    /**
+     * Busca registros por ID do veículo
+     */
+    public List<RegistroUso> buscarPorVeiculoId(int veiculoId) {
+        String sql = "SELECT * FROM registros_uso WHERE veiculo_id = ?";
+        List<RegistroUso> registros = new ArrayList<>();
+        
+        try (Connection conn = DatabaseConnection.getInstance().getConnection();
+             PreparedStatement pstmt = conn.prepareStatement(sql)) {
+
+            pstmt.setInt(1, veiculoId);
+            
+            try (ResultSet rs = pstmt.executeQuery()) {
+                while (rs.next()) {
+                    RegistroUso registro = criarRegistroUsoDoResultSet(rs);
+                    if (registro != null) {
+                        registros.add(registro);
+                    }
+                }
+            }
+        } catch (SQLException e) {
+            System.err.println("Erro ao buscar registros por veículo ID " + veiculoId + ": " + e.getMessage());
+        }
+        return registros;
     }
 }
