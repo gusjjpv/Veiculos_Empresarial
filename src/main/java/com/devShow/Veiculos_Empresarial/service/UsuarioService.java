@@ -152,16 +152,16 @@ public class UsuarioService {
      */
     public List<RegistroUso> visualizarHistoricoCompleto(Usuario admin) {
         if (admin == null || !admin.getEhAdm()) {
-            System.err.println("❌ ACESSO NEGADO: Apenas administradores podem visualizar o histórico completo.");
+            System.err.println(" ACESSO NEGADO: Apenas administradores podem visualizar o histórico completo.");
             return new ArrayList<>();
         }
         
         List<RegistroUso> historico = registroUsoService.listarTodosRegistros();
         
         if (historico.isEmpty()) {
-            System.out.println("📋 Nenhum registro de viagem encontrado.");
+            System.out.println(" Nenhum registro de viagem encontrado.");
         } else {
-            System.out.println("📋 HISTÓRICO COMPLETO DE VIAGENS (" + historico.size() + " registros)");
+            System.out.println(" HISTÓRICO COMPLETO DE VIAGENS (" + historico.size() + " registros)");
             System.out.println("═══════════════════════════════════════════════════════════════");
         }
         
@@ -173,21 +173,21 @@ public class UsuarioService {
      */
     public List<RegistroUso> visualizarHistoricoPorMotorista(Usuario admin, String cnh) {
         if (admin == null || !admin.getEhAdm()) {
-            System.err.println("❌ ACESSO NEGADO: Apenas administradores podem visualizar histórico de motoristas.");
+            System.err.println(" ACESSO NEGADO: Apenas administradores podem visualizar histórico de motoristas.");
             return new ArrayList<>();
         }
         
         if (cnh == null || cnh.trim().isEmpty()) {
-            System.err.println("❌ ERRO: CNH é obrigatória para filtrar por motorista.");
+            System.err.println(" ERRO: CNH é obrigatória para filtrar por motorista.");
             return new ArrayList<>();
         }
         
         List<RegistroUso> historico = registroUsoService.buscarRegistrosPorMotorista(cnh);
         
         if (historico.isEmpty()) {
-            System.out.println("📋 Nenhuma viagem encontrada para o motorista com CNH: " + cnh);
+            System.out.println(" Nenhuma viagem encontrada para o motorista com CNH: " + cnh);
         } else {
-            System.out.println("📋 HISTÓRICO DE VIAGENS - MOTORISTA CNH: " + cnh + " (" + historico.size() + " registros)");
+            System.out.println(" HISTÓRICO DE VIAGENS - MOTORISTA CNH: " + cnh + " (" + historico.size() + " registros)");
             System.out.println("═══════════════════════════════════════════════════════════════");
         }
         
@@ -199,21 +199,21 @@ public class UsuarioService {
      */
     public List<RegistroUso> visualizarHistoricoPorVeiculo(Usuario admin, String placa) {
         if (admin == null || !admin.getEhAdm()) {
-            System.err.println("❌ ACESSO NEGADO: Apenas administradores podem visualizar histórico de veículos.");
+            System.err.println(" ACESSO NEGADO: Apenas administradores podem visualizar histórico de veículos.");
             return new ArrayList<>();
         }
         
         if (placa == null || placa.trim().isEmpty()) {
-            System.err.println("❌ ERRO: Placa é obrigatória para filtrar por veículo.");
+            System.err.println(" ERRO: Placa é obrigatória para filtrar por veículo.");
             return new ArrayList<>();
         }
         
         List<RegistroUso> historico = registroUsoService.buscarRegistrosPorVeiculo(placa);
         
         if (historico.isEmpty()) {
-            System.out.println("📋 Nenhuma viagem encontrada para o veículo com placa: " + placa);
+            System.out.println(" Nenhuma viagem encontrada para o veículo com placa: " + placa);
         } else {
-            System.out.println("📋 HISTÓRICO DE VIAGENS - VEÍCULO PLACA: " + placa + " (" + historico.size() + " registros)");
+            System.out.println(" HISTÓRICO DE VIAGENS - VEÍCULO PLACA: " + placa + " (" + historico.size() + " registros)");
             System.out.println("═══════════════════════════════════════════════════════════════");
         }
         
@@ -225,7 +225,7 @@ public class UsuarioService {
      */
     public boolean excluirRegistroViagem(Usuario admin, int idRegistro) {
         if (admin == null || !admin.getEhAdm()) {
-            System.err.println("❌ ACESSO NEGADO: Apenas administradores podem excluir registros de viagem.");
+            System.err.println(" ACESSO NEGADO: Apenas administradores podem excluir registros de viagem.");
             return false;
         }
         

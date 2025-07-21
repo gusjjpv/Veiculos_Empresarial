@@ -35,40 +35,35 @@ public class RegistroUsoService {
         return novoRegistro;
 
     } catch (Exception e) {
-        System.err.println("❌ Erro no serviço ao registrar saída: " + e.getMessage());
+        System.err.println(" Erro no serviço ao registrar saída: " + e.getMessage());
         return null;
     }
 }
 
     public boolean finalizarUsoVeiculo(int idRegistro, double quilometragemFinal) {
         try {
-            // Busca o registro de forma robusta (funciona mesmo com dados órfãos)
             RegistroUso registro = registroUsoRepository.buscarPorIdRobusto(idRegistro);
             if (registro == null) {
-                System.err.println("❌ Registro com ID " + idRegistro + " não encontrado");
+                System.err.println(" Registro com ID " + idRegistro + " não encontrado");
                 return false;
             }
             
-            // Verifica se o registro já foi finalizado
             if (registro.getDataHoraRetorno() != null) {
-                System.err.println("❌ Registro já foi finalizado anteriormente");
+                System.err.println(" Registro já foi finalizado anteriormente");
                 return false;
             }
-            
-            // Valida a quilometragem final
+
             if (quilometragemFinal < registro.getKmSaida()) {
-                System.err.println("❌ Quilometragem final (" + quilometragemFinal + ") não pode ser menor que a inicial (" + registro.getKmSaida() + ")");
+                System.err.println(" Quilometragem final (" + quilometragemFinal + ") não pode ser menor que a inicial (" + registro.getKmSaida() + ")");
                 return false;
             }
             
-            // Atualiza o registro
             registro.setDataHoraRetorno(new Date());
             registro.setKmRetorno(quilometragemFinal);
             
             boolean atualizouRegistro = registroUsoRepository.atualizar(registro);
             
             if (atualizouRegistro) {
-                // Atualiza o veículo (se ainda existir)
                 try {
                     Veiculo veiculo = registro.getVeiculo();
                     if (veiculo != null && !veiculo.getPlaca().equals("PLACA_AUSENTE")) {
@@ -81,26 +76,26 @@ public class RegistroUsoService {
                             
                             double kmRodados = quilometragemFinal - registro.getKmSaida();
                             
-                            System.out.println("✅ Uso do veículo finalizado com sucesso!");
+                            System.out.println(" Uso do veículo finalizado com sucesso!");
                             System.out.println("   Registro ID: " + idRegistro);
                             System.out.println("   Veículo: " + veiculoReal.getPlaca());
                             System.out.println("   KM rodados: " + kmRodados + " km");
                             System.out.println("   Duração: " + calcularDuracaoUso(registro));
                         } else {
-                            System.out.println("✅ Registro finalizado! (Veículo não encontrado no sistema)");
+                            System.out.println(" Registro finalizado! (Veículo não encontrado no sistema)");
                         }
                     } else {
-                        System.out.println("✅ Registro órfão finalizado com sucesso!");
+                        System.out.println(" Registro órfão finalizado com sucesso!");
                     }
                 } catch (Exception e) {
-                    System.out.println("✅ Registro finalizado! (Erro ao atualizar veículo: " + e.getMessage() + ")");
+                    System.out.println(" Registro finalizado! (Erro ao atualizar veículo: " + e.getMessage() + ")");
                 }
                 
                 return true;
             }
             
         } catch (Exception e) {
-            System.err.println("❌ Erro ao finalizar uso do veículo: " + e.getMessage());
+            System.err.println(" Erro ao finalizar uso do veículo: " + e.getMessage());
         }
         
         return false;
@@ -121,7 +116,7 @@ public class RegistroUsoService {
     public List<RegistroUso> buscarRegistrosPorMotorista(String cnhMotorista) {
         Motorista motorista = motoristaRepository.buscarPorCnh(cnhMotorista);
         if (motorista == null) {
-            System.err.println("❌ Motorista não encontrado com CNH: " + cnhMotorista);
+            System.err.println(" Motorista não encontrado com CNH: " + cnhMotorista);
             return new ArrayList<>();
         }
         
@@ -131,7 +126,7 @@ public class RegistroUsoService {
     public List<RegistroUso> buscarRegistrosPorVeiculo(String placaVeiculo) {
         Veiculo veiculo = veiculoRepository.buscarVeiculoPorPlaca(placaVeiculo);
         if (veiculo == null) {
-            System.err.println("❌ Veículo não encontrado com placa: " + placaVeiculo);
+            System.err.println(" Veículo não encontrado com placa: " + placaVeiculo);
             return new ArrayList<>();
         }
         
@@ -181,46 +176,39 @@ public class RegistroUsoService {
         }
     }
     
-    /**
-     * Lista todos os registros de uso (finalizados e ativos)
-     */
     public List<RegistroUso> listarTodosRegistros() {
         return registroUsoRepository.listarTodos();
     }
-    
-    /**
-     * Exclui um registro de uso pelo ID
-     */
+
     public boolean excluirRegistro(int idRegistro) {
         try {
             RegistroUso registro = registroUsoRepository.buscarPorId(idRegistro, null);
             if (registro == null) {
-                System.err.println("❌ Registro com ID " + idRegistro + " não encontrado.");
+                System.err.println(" Registro com ID " + idRegistro + " não encontrado.");
                 return false;
             }
             
             boolean sucesso = registroUsoRepository.excluir(idRegistro);
             
             if (sucesso) {
-                System.out.println("✅ Registro de viagem ID " + idRegistro + " excluído com sucesso.");
+                System.out.println(" Registro de viagem ID " + idRegistro + " excluído com sucesso.");
                 
-                // Se o registro estava ativo, libera o veículo
                 if (registro.getDataHoraRetorno() == null) {
                     Veiculo veiculo = veiculoRepository.buscarPorId(registro.getVeiculo().getId(), null);
                     if (veiculo != null) {
                         veiculo.setStatus(StatusVeiculo.DISPONIVEL);
                         veiculoRepository.atualizar(veiculo);
-                        System.out.println("🚗 Veículo " + veiculo.getPlaca() + " liberado (status: DISPONÍVEL).");
+                        System.out.println(" Veículo " + veiculo.getPlaca() + " liberado (status: DISPONÍVEL).");
                     }
                 }
             } else {
-                System.err.println("❌ Erro ao excluir registro de viagem ID " + idRegistro + ".");
+                System.err.println(" Erro ao excluir registro de viagem ID " + idRegistro + ".");
             }
             
             return sucesso;
             
         } catch (Exception e) {
-            System.err.println("❌ Erro ao excluir registro: " + e.getMessage());
+            System.err.println(" Erro ao excluir registro: " + e.getMessage());
             return false;
         }
     }

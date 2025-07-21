@@ -124,7 +124,7 @@ public class Main{
                         System.out.println("Nenhum veículo disponível no momento.");
                     } else {
                         for(Veiculo v : disponiveis) {
-                            System.out.printf("🚗 %s - %s %s (%d) - %.1f km\n", 
+                            System.out.printf(" %s - %s %s (%d) - %.1f km\n", 
                                 v.getPlaca(), v.getMarca(), v.getModelo(), 
                                 v.getAno(), v.getQuilometragemAtual());
                         }
@@ -154,10 +154,10 @@ public class Main{
                     input.nextLine();
                     
                     if(registroUsoService.finalizarUsoVeiculo(idRegistro, quilometragemFinal)) {
-                        System.out.println("✅ Uso do veículo finalizado com sucesso!");
-                        System.out.println("🏁 Obrigado por utilizar nossos serviços!");
+                        System.out.println(" Uso do veículo finalizado com sucesso!");
+                        System.out.println(" Obrigado por utilizar nossos serviços!");
                     } else {
-                        System.out.println("❌ Erro ao finalizar uso do veículo!");
+                        System.out.println(" Erro ao finalizar uso do veículo!");
                         System.out.println("Verifique o ID do registro.");
                     }
                     System.out.println("Pressione ENTER para continuar...");
@@ -244,8 +244,6 @@ public class Main{
         do {
             System.out.print("===== GERENCIAMENTO DE VEÍCULOS =====\n");
             System.out.print("1. CADASTRAR NOVO VEÍCULO\n2. EDITAR INFORMACOES\n3. REMOVER VEICULO\n0. VOLTAR\n>>");
-            //System.out.print("7. ATUALIZAR STATUS DO VEÍCULO\n"); // add ao um sub menu de edicao
-            //System.out.print("8. ATUALIZAR QUILOMETRAGEM\n"); // add ao um sub menu de editcao
             opcao = input.nextInt();
             input.nextLine();
             
@@ -268,9 +266,9 @@ public class Main{
                     input.nextLine();
                     
                     if(usuarioService.adicionarVeiculos(admin, placa, modelo, marca, ano, cor, quilometragem)) {
-                        System.out.println("✅ Veículo cadastrado com sucesso!");
+                        System.out.println(" Veículo cadastrado com sucesso!");
                     } else {
-                        System.out.println("❌ Erro ao cadastrar veículo!");
+                        System.out.println(" Erro ao cadastrar veículo!");
                     }
                     System.out.println("Pressione ENTER para continuar...");
                     input.nextLine();
@@ -297,7 +295,6 @@ public class Main{
                     limparTela();
                     System.out.print("PLACA DO VEICULO: ");
                     placa = input.nextLine();
-                    //resolver erro dps tenta voltar para o menu.
                     usuarioService.removerVeiculo(admin, placa);
                     System.out.println("Pressione ENTER para continuar...");
                     input.nextLine();
@@ -339,7 +336,6 @@ public class Main{
                     
                     LocalDate dataPrevista = LocalDate.now();
                     try {
-                        // Aceita formato DD/MM/AAAA
                         String[] partesData = dataStr.split("/");
                         if (partesData.length == 3) {
                             dia = Integer.parseInt(partesData[0]);
@@ -350,7 +346,7 @@ public class Main{
                             throw new IllegalArgumentException("Formato de data inválido");
                         }
                     } catch (Exception e) {
-                        System.out.println("❌ Erro: Formato de data inválido! Use DD/MM/AAAA (ex: 19/08/2025)");
+                        System.out.println(" Erro: Formato de data inválido! Use DD/MM/AAAA (ex: 19/08/2025)");
                         System.out.println("Pressione ENTER para continuar...");
                         input.nextLine();
                         break;
@@ -358,9 +354,9 @@ public class Main{
                 
                     
                      if (manutencaoService.iniciarManutencao(placa, descricao, oficina, java.sql.Date.valueOf(dataPrevista))) {
-                    System.out.println("✅ Manutenção iniciada com sucesso!");
+                    System.out.println(" Manutenção iniciada com sucesso!");
                 } else {
-                    System.out.println("❌ Erro ao iniciar manutenção!");
+                    System.out.println(" Erro ao iniciar manutenção!");
                 }
                     System.out.println("Pressione ENTER para continuar...");
                     input.nextLine();
@@ -375,11 +371,6 @@ public class Main{
                     input.nextLine();
                     
                     usuarioService.concluirManutencao(admin, placa, custo);
-                     //if(manutencaoService.concluirManutencao(placa, new java.util.Date(), custo)) {
-                     //    System.out.println("✅ Manutenção finalizada com sucesso!");
-                     //} else {
-                     //    System.out.println("❌ Erro ao finalizar manutenção!");
-                     //}
                     System.out.println("Pressione ENTER para continuar...");
                     input.nextLine();
                     break;
@@ -539,9 +530,9 @@ public class Main{
                     input.nextLine();
                     
                     if(registroUsoService.finalizarUsoVeiculo(idRegistro, quilometragemFinal)) {
-                        System.out.println("✅ Uso do veículo finalizado com sucesso!");
+                        System.out.println(" Uso do veículo finalizado com sucesso!");
                     } else {
-                        System.out.println("❌ Erro ao finalizar uso do veículo!");
+                        System.out.println(" Erro ao finalizar uso do veículo!");
                     }
                     System.out.println("Pressione ENTER para continuar...");
                     input.nextLine();
@@ -641,17 +632,17 @@ public class Main{
                     idRegistro = input.nextInt();
                     input.nextLine();
                     
-                    System.out.print("⚠️ CONFIRMAÇÃO: Deseja realmente excluir o registro ID " + idRegistro + "? (S/N): ");
+                    System.out.print(" CONFIRMAÇÃO: Deseja realmente excluir o registro ID " + idRegistro + "? (S/N): ");
                     String confirmacao = input.nextLine();
                     
                     if(confirmacao.toLowerCase().startsWith("s")) {
                         if(usuarioService.excluirRegistroViagem(admin, idRegistro)) {
-                            System.out.println("✅ Registro excluído com sucesso!");
+                            System.out.println(" Registro excluído com sucesso!");
                         } else {
-                            System.out.println("❌ Erro ao excluir registro!");
+                            System.out.println(" Erro ao excluir registro!");
                         }
                     } else {
-                        System.out.println("❌ Operação cancelada.");
+                        System.out.println("Operação cancelada.");
                     }
                     System.out.println("Pressione ENTER para continuar...");
                     input.nextLine();
@@ -671,25 +662,25 @@ public class Main{
 
     public static String formatarRegistroDetalhado(RegistroUso registro) {
         StringBuilder sb = new StringBuilder();
-        sb.append("🆔 ID: ").append(registro.getId()).append("\n");
-        sb.append("👤 Motorista: ").append(registro.getMotorista().getNome())
+        sb.append(" ID: ").append(registro.getId()).append("\n");
+        sb.append(" Motorista: ").append(registro.getMotorista().getNome())
           .append(" (CNH: ").append(registro.getMotorista().getCnh()).append(")\n");
-        sb.append("🚗 Veículo: ").append(registro.getVeiculo().getPlaca())
+        sb.append(" Veículo: ").append(registro.getVeiculo().getPlaca())
           .append(" - ").append(registro.getVeiculo().getMarca())
           .append(" ").append(registro.getVeiculo().getModelo()).append("\n");
-        sb.append("📍 Destino: ").append(registro.getDestinoOuFinalidade()).append("\n");
-        sb.append("🕐 Saída: ").append(registro.getDataHoraSaida()).append("\n");
+        sb.append(" Destino: ").append(registro.getDestinoOuFinalidade()).append("\n");
+        sb.append(" Saída: ").append(registro.getDataHoraSaida()).append("\n");
         
         if(registro.getDataHoraRetorno() != null) {
-            sb.append("🏁 Retorno: ").append(registro.getDataHoraRetorno()).append("\n");
-            sb.append("🛣️ Km Inicial: ").append(registro.getKmSaida())
+            sb.append(" Retorno: ").append(registro.getDataHoraRetorno()).append("\n");
+            sb.append(" Km Inicial: ").append(registro.getKmSaida())
               .append(" | Km Final: ").append(registro.getKmRetorno()).append("\n");
-            sb.append("📊 Distância: ").append(registro.getKmRetorno() - registro.getKmSaida())
+            sb.append(" Distância: ").append(registro.getKmRetorno() - registro.getKmSaida())
               .append(" km\n");
-            sb.append("✅ Status: FINALIZADA");
+            sb.append(" Status: FINALIZADA");
         } else {
-            sb.append("🛣️ Km Inicial: ").append(registro.getKmSaida()).append("\n");
-            sb.append("⏳ Status: EM ANDAMENTO");
+            sb.append(" Km Inicial: ").append(registro.getKmSaida()).append("\n");
+            sb.append(" Status: EM ANDAMENTO");
         }
         
         return sb.toString();

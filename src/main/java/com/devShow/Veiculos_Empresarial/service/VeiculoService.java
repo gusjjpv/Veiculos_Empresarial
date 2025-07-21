@@ -73,7 +73,7 @@ public class VeiculoService {
             }
             return novoRegistro;
         } catch (Exception e) {
-            System.err.println("❌ Erro no processo de usar veículo: " + e.getMessage());
+            System.err.println(" Erro no processo de usar veículo: " + e.getMessage());
             return null;
         }
     }

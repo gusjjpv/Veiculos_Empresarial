@@ -35,11 +35,11 @@ public class ManutencaoService {
             veiculo.setStatus(StatusVeiculo.MANUTENCAO);
             veiculoRepository.atualizar(veiculo);
 
-            System.out.println("✅ Manutenção iniciada com sucesso para o veículo " + placaVeiculo);
+            System.out.println(" Manutenção iniciada com sucesso para o veículo " + placaVeiculo);
             return true;
 
         } catch (Exception e) {
-            System.err.println("❌ Erro ao iniciar manutenção: " + e.getMessage());
+            System.err.println(" Erro ao iniciar manutenção: " + e.getMessage());
             return false;
         }
     }

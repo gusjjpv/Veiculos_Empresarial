@@ -28,14 +28,14 @@ public class MotoristaService {
             validarDadosMotorista(nome, userName, senha, setor, cnh);
             
             if (motoristaRepository.buscarPorCnh(cnh) != null) {
-                System.err.println("❌ ERRO: CNH " + cnh + " já está cadastrada");
+                System.err.println(" ERRO: CNH " + cnh + " já está cadastrada");
                 return false;
             }
             
             Motorista novoMotorista = new Motorista(nome, userName, senha, setor, cnh);
             motoristaRepository.salvar(novoMotorista);
             
-            System.out.println("✅ Motorista cadastrado com sucesso!");
+            System.out.println(" Motorista cadastrado com sucesso!");
             System.out.println("   Nome: " + nome);
             System.out.println("   CNH: " + cnh);
             System.out.println("   Setor: " + setor);
@@ -44,7 +44,7 @@ public class MotoristaService {
             return true;
             
         } catch (Exception e) {
-            System.err.println("❌ Erro ao cadastrar motorista: " + e.getMessage());
+            System.err.println(" Erro ao cadastrar motorista: " + e.getMessage());
         }
         
         return false;
@@ -55,7 +55,7 @@ public class MotoristaService {
             Motorista motoristaParaAtualizar = motoristaRepository.buscarPorCnh(cnhDoMotorista);
 
             if (motoristaParaAtualizar == null) {
-                System.err.println("❌ ERRO: Motorista com CNH " + cnhDoMotorista + " não encontrado. Atualização falhou");
+                System.err.println(" ERRO: Motorista com CNH " + cnhDoMotorista + " não encontrado. Atualização falhou");
                 return false;
             }
 
@@ -72,11 +72,11 @@ public class MotoristaService {
 
             motoristaRepository.atualizar(motoristaParaAtualizar);
             
-            System.out.println("✅ Motorista atualizado com sucesso!");
+            System.out.println(" Motorista atualizado com sucesso!");
             return true;
             
         } catch (Exception e) {
-            System.err.println("❌ Erro ao atualizar motorista: " + e.getMessage());
+            System.err.println(" Erro ao atualizar motorista: " + e.getMessage());
         }
         
         return false;
@@ -85,7 +85,7 @@ public class MotoristaService {
 
     public boolean iniciarViagem(Motorista motoristaUsuario, String placa, String destino) {
         if (motoristaUsuario == null) {
-            System.out.println("❌ Erro: Usuário não é um motorista válido!");
+            System.out.println(" Erro: Usuário não é um motorista válido!");
             return false;
         }
         RegistroUso novoRegistro = veiculoService.usarVeiculo(placa, motoristaUsuario, destino);
@@ -95,14 +95,14 @@ public class MotoristaService {
 
     public Motorista buscarMotorista(String cnh) {
         if (cnh == null || cnh.trim().isEmpty()) {
-            System.err.println("❌ CNH é obrigatória para busca");
+            System.err.println(" CNH é obrigatória para busca");
             return null;
         }
         
         Motorista motorista = motoristaRepository.buscarPorCnh(cnh);
         
         if (motorista == null) {
-            System.err.println("❌ Motorista com CNH " + cnh + " não encontrado");
+            System.err.println(" Motorista com CNH " + cnh + " não encontrado");
         }
         
         return motorista;
@@ -116,9 +116,9 @@ public class MotoristaService {
         List<Motorista> listaMotoristas = motoristaRepository.listarTodos();
         
         if (listaMotoristas.isEmpty()) {
-            System.out.println("ℹ️ Nenhum motorista cadastrado no sistema");
+            System.out.println(" Nenhum motorista cadastrado no sistema");
         } else {
-            System.out.println("📋 Total de motoristas: " + listaMotoristas.size());
+            System.out.println(" Total de motoristas: " + listaMotoristas.size());
         }
         
         return listaMotoristas;
@@ -162,11 +162,11 @@ public class MotoristaService {
             for (Motorista motorista : motoristas) {
                 if (userName.equals(motorista.getUsername()) && senha.equals(motorista.getSenha())) {
                     if (!motorista.isAtivo()) {
-                        System.err.println("❌ Motorista está desativado");
+                        System.err.println(" Motorista está desativado");
                         return null;
                     }
                     
-                    System.out.println("✅ Login de motorista realizado com sucesso!");
+                    System.out.println(" Login de motorista realizado com sucesso!");
                     System.out.println("   Bem-vindo, " + motorista.getNome() + "!");
                     System.out.println("   CNH: " + motorista.getCnh());
                     System.out.println("   Setor: " + motorista.getSetor());
@@ -175,11 +175,11 @@ public class MotoristaService {
                 }
             }
             
-            System.err.println("❌ Credenciais inválidas");
+            System.err.println(" Credenciais inválidas");
             return null;
             
         } catch (Exception e) {
-            System.err.println("❌ Erro no login do motorista: " + e.getMessage());
+            System.err.println(" Erro no login do motorista: " + e.getMessage());
         }
         
         return null;
