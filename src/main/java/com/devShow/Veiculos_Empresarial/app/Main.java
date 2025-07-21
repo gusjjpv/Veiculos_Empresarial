@@ -566,15 +566,14 @@ public class Main{
 
     public static void menuHistoricoViagens(Usuario admin, Scanner input){
         int opcao;
-        String cnh, placa;
+        String placa;
         int idRegistro;
         
         do {
             System.out.print("===== HISTÓRICO DE VIAGENS (ADMINISTRADOR) =====\n");
             System.out.print("1. VISUALIZAR TODAS AS VIAGENS\n");
-            System.out.print("2. FILTRAR POR MOTORISTA (CNH)\n");
-            System.out.print("3. FILTRAR POR VEÍCULO (PLACA)\n");
-            System.out.print("4. EXCLUIR REGISTRO DE VIAGEM\n");
+            System.out.print("2. FILTRAR POR VEÍCULO (PLACA)\n");
+            System.out.print("3. EXCLUIR REGISTRO DE VIAGEM\n");
             System.out.print("0. VOLTAR\n>>");
             opcao = input.nextInt();
             input.nextLine();
@@ -596,22 +595,6 @@ public class Main{
                     
                 case 2:
                     limparTela();
-                    System.out.print("CNH DO MOTORISTA: ");
-                    cnh = input.nextLine();
-                    System.out.println("===== HISTÓRICO POR MOTORISTA =====");
-                    List<RegistroUso> viagensMotorista = usuarioService.visualizarHistoricoPorMotorista(admin, cnh);
-                    if(!viagensMotorista.isEmpty()) {
-                        for(RegistroUso r : viagensMotorista) {
-                            System.out.println(formatarRegistroDetalhado(r));
-                            System.out.println("─────────────────────────────────────────────────");
-                        }
-                    }
-                    System.out.println("Pressione ENTER para continuar...");
-                    input.nextLine();
-                    break;
-                    
-                case 3:
-                    limparTela();
                     System.out.print("PLACA DO VEÍCULO: ");
                     placa = input.nextLine();
                     System.out.println("===== HISTÓRICO POR VEÍCULO =====");
@@ -626,7 +609,7 @@ public class Main{
                     input.nextLine();
                     break;
                     
-                case 4:
+                case 3:
                     limparTela();
                     System.out.print("ID DO REGISTRO PARA EXCLUIR: ");
                     idRegistro = input.nextInt();

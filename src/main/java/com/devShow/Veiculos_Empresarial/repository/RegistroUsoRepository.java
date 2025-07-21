@@ -43,7 +43,7 @@ public class RegistroUsoRepository {
 
             
             pstmt.setInt(1, registro.getVeiculo().getId()); 
-            pstmt.setInt(2, registro.getMotorista().getId()); 
+            pstmt.setInt(2, registro.getUsuario().getId()); // Use usuario_id para motorista_id
             pstmt.setInt(3, registro.getUsuario().getId()); 
             pstmt.setString(4, sdf.format(registro.getDataHoraSaida())); 
             pstmt.setDouble(5, registro.getKmSaida());
@@ -172,7 +172,7 @@ public class RegistroUsoRepository {
             if (motorista == null) problemas.append("Motorista ID ").append(motoristaId).append(" não encontrado; ");
             if (usuario == null && motorista != null) problemas.append("Usuário do motorista ausente; ");
             
-            System.err.println("⚠️ Registro órfão ID " + id + ": " + problemas.toString());
+            System.err.println(" Registro órfão ID " + id + ": " + problemas.toString());
             return null;
         }
     }
@@ -183,6 +183,15 @@ public class RegistroUsoRepository {
     public RegistroUso buscarPorIdRobusto(int id) {
         String sql = "SELECT * FROM registros_uso WHERE id = ?";
         
+        int registroId = -1;
+        int veiculoId = -1;
+        int motoristaId = -1;
+        double quilometragemInicial = 0.0;
+        double quilometragemFinal = 0.0;
+        String destinoOuFinalidade = "";
+        Date dataHoraSaida = null;
+        Date dataHoraRetorno = null;
+        
         try (Connection connection = DatabaseConnection.getInstance().getConnection();
              PreparedStatement pstmt = connection.prepareStatement(sql)) {
 
@@ -190,20 +199,83 @@ public class RegistroUsoRepository {
 
             try (ResultSet rs = pstmt.executeQuery()) {
                 if (rs.next()) {
-                    // Primeiro tenta o método normal
-                    RegistroUso registro = criarRegistroUsoDoResultSet(rs);
-                    if (registro != null) {
-                        return registro;
-                    }
+                    // Extrai todos os dados primeiro
+                    registroId = rs.getInt("id");
+                    veiculoId = rs.getInt("veiculo_id");
+                    motoristaId = rs.getInt("motorista_id");
+                    quilometragemInicial = rs.getDouble("quilometragem_inicial");
+                    quilometragemFinal = rs.getDouble("quilometragem_final");
+                    destinoOuFinalidade = rs.getString("destino_ou_finalidade");
                     
-                    // Se falhou, cria um registro básico para permitir operações como exclusão
-                    return criarRegistroBasico(rs);
+                    // Processa as datas
+                    try {
+                        if (rs.getString("data_inicio") != null) dataHoraSaida = sdf.parse(rs.getString("data_inicio"));
+                        if (rs.getString("data_fim") != null) dataHoraRetorno = sdf.parse(rs.getString("data_fim"));
+                    } catch (ParseException e) {
+                        System.err.println("Erro ao converter data do registro ID " + registroId + ": " + e.getMessage());
+                    }
+                } else {
+                    return null; // Registro não encontrado
                 }
             }
         } catch (SQLException e) {
             System.err.println("Erro ao buscar registro de uso por ID: " + e.getMessage());
+            return null;
         }
-        return null;
+        
+    
+        try {
+            // Tenta buscar veiculo e motorista
+            Veiculo veiculo = veiculoRepository.buscarPorId(veiculoId, null);
+            Motorista motorista = motoristaRepository.buscarPorId(motoristaId);
+            Usuario usuario = (motorista != null) ? motorista.getUsuario() : null;
+
+            if (veiculo != null && motorista != null && usuario != null) {
+                return new RegistroUso(
+                    registroId,
+                    veiculo,
+                    motorista,
+                    usuario,
+                    dataHoraSaida,
+                    dataHoraRetorno, 
+                    quilometragemInicial,
+                    quilometragemFinal,
+                    destinoOuFinalidade
+                );
+            } else {
+                // Se algum objeto não foi encontrado, cria objetos básicos
+                System.err.println(" Registro órfão ID " + registroId + ": criando objetos substitutos");
+                
+                // Cria objetos básicos
+                if (veiculo == null) {
+                    veiculo = new Veiculo(veiculoId, "PLACA_AUSENTE", "MODELO_AUSENTE", "MARCA_AUSENTE", 2000, "COR_AUSENTE", 
+                                         StatusVeiculo.DISPONIVEL, 0.0, null);
+                }
+                
+                if (motorista == null || usuario == null) {
+                    usuario = new Usuario("USUARIO_AUSENTE", "usuario_ausente", "senha", false);
+                    usuario.setId(motoristaId);
+                    
+                    motorista = new Motorista(motoristaId, "MOTORISTA_AUSENTE", "usuario_ausente", "senha", false, true, 
+                                             "SETOR_AUSENTE", "CNH_AUSENTE", motoristaId, true);
+                }
+                
+                return new RegistroUso(
+                    registroId,
+                    veiculo,
+                    motorista,
+                    usuario,
+                    dataHoraSaida,
+                    dataHoraRetorno,
+                    quilometragemInicial,
+                    quilometragemFinal,
+                    destinoOuFinalidade
+                );
+            }
+        } catch (Exception e) {
+            System.err.println(" Erro ao criar registro robusto ID " + registroId + ": " + e.getMessage());
+            return null;
+        }
     }
     
     /**
@@ -231,11 +303,12 @@ public class RegistroUsoRepository {
         Veiculo veiculo = new Veiculo(veiculoId, "PLACA_AUSENTE", "MODELO_AUSENTE", "MARCA_AUSENTE", 2000, "COR_AUSENTE", 
                                      StatusVeiculo.DISPONIVEL, 0.0, null);
         
-        Motorista motorista = new Motorista("MOTORISTA_AUSENTE", "usuario_ausente", "senha", "SETOR_AUSENTE", "CNH_AUSENTE");
-        motorista.setId(motoristaId);
-        
+        // Usa o construtor completo do Motorista com usuarioId correto
         Usuario usuario = new Usuario("USUARIO_AUSENTE", "usuario_ausente", "senha", false);
-        usuario.setId(motoristaId);
+        usuario.setId(motoristaId); // Define o ID do usuário como sendo o motoristaId do banco
+        
+        Motorista motorista = new Motorista(motoristaId, "MOTORISTA_AUSENTE", "usuario_ausente", "senha", false, true, 
+                                           "SETOR_AUSENTE", "CNH_AUSENTE", motoristaId, true);
         
         return new RegistroUso(
             id,
@@ -254,19 +327,98 @@ public class RegistroUsoRepository {
         String sql = "SELECT * FROM registros_uso";
         List<RegistroUso> registros = new ArrayList<>();
         
+        List<DadosRegistro> dadosExtraidos = new ArrayList<>();
+        
         try (Connection conn = DatabaseConnection.getInstance().getConnection();
-             PreparedStatement pstmt = conn.prepareStatement(sql);
-             ResultSet rs = pstmt.executeQuery()) {
+             PreparedStatement pstmt = conn.prepareStatement(sql)) {
 
-            while (rs.next()) {
-                RegistroUso registro = criarRegistroUsoDoResultSet(rs);
-                if (registro != null) {
-                    registros.add(registro);
+            try (ResultSet rs = pstmt.executeQuery()) {
+                while (rs.next()) {
+                    DadosRegistro dados = new DadosRegistro();
+                    dados.id = rs.getInt("id");
+                    dados.veiculoId = rs.getInt("veiculo_id");
+                    dados.motoristaId = rs.getInt("motorista_id");
+                    dados.quilometragemInicial = rs.getDouble("quilometragem_inicial");
+                    dados.quilometragemFinal = rs.getDouble("quilometragem_final");
+                    dados.destinoOuFinalidade = rs.getString("destino_ou_finalidade");
+                    
+                    // Processa as datas
+                    try {
+                        if (rs.getString("data_inicio") != null) {
+                            dados.dataHoraSaida = sdf.parse(rs.getString("data_inicio"));
+                        }
+                        if (rs.getString("data_fim") != null) {
+                            dados.dataHoraRetorno = sdf.parse(rs.getString("data_fim"));
+                        }
+                    } catch (ParseException e) {
+                        System.err.println("Erro ao converter data do registro ID " + dados.id + ": " + e.getMessage());
+                    }
+                    
+                    dadosExtraidos.add(dados);
                 }
             }
         } catch (SQLException e) {
             System.err.println("Erro ao listar todos os registros de uso: " + e.getMessage());
+            return registros;
         }
+        
+        // Segunda etapa: processar os dados extraídos
+        for (DadosRegistro dados : dadosExtraidos) {
+            try {
+                // Tenta buscar veiculo e motorista
+                Veiculo veiculo = veiculoRepository.buscarPorId(dados.veiculoId, null);
+                Motorista motorista = motoristaRepository.buscarPorId(dados.motoristaId);
+                Usuario usuario = (motorista != null) ? motorista.getUsuario() : null;
+
+                if (veiculo != null && motorista != null && usuario != null) {
+                    RegistroUso registro = new RegistroUso(
+                        dados.id,
+                        veiculo,
+                        motorista,
+                        usuario,
+                        dados.dataHoraSaida,
+                        dados.dataHoraRetorno, 
+                        dados.quilometragemInicial,
+                        dados.quilometragemFinal,
+                        dados.destinoOuFinalidade
+                    );
+                    registros.add(registro);
+                } else {
+                    // Cria objetos substitutos
+                    System.err.println(" Registro órfão ID " + dados.id + ": criando objetos substitutos");
+                    
+                    if (veiculo == null) {
+                        veiculo = new Veiculo(dados.veiculoId, "PLACA_AUSENTE", "MODELO_AUSENTE", "MARCA_AUSENTE", 2000, "COR_AUSENTE", 
+                                             StatusVeiculo.DISPONIVEL, 0.0, null);
+                    }
+                    
+                    if (motorista == null || usuario == null) {
+                        usuario = new Usuario("USUARIO_AUSENTE", "usuario_ausente", "senha", false);
+                        usuario.setId(dados.motoristaId);
+                        
+                        motorista = new Motorista(dados.motoristaId, "MOTORISTA_AUSENTE", "usuario_ausente", "senha", false, true, 
+                                                 "SETOR_AUSENTE", "CNH_AUSENTE", dados.motoristaId, true);
+                    }
+                    
+                    RegistroUso registro = new RegistroUso(
+                        dados.id,
+                        veiculo,
+                        motorista,
+                        usuario,
+                        dados.dataHoraSaida,
+                        dados.dataHoraRetorno,
+                        dados.quilometragemInicial,
+                        dados.quilometragemFinal,
+                        dados.destinoOuFinalidade
+                    );
+                    registros.add(registro);
+                }
+            } catch (Exception e) {
+                System.err.println(" Erro ao processar registro ID " + dados.id + ": " + e.getMessage());
+                // Continua com o próximo registro
+            }
+        }
+        
         return registros;
     }
 
@@ -338,9 +490,6 @@ public class RegistroUsoRepository {
         return false;
     }
     
-    /**
-     * Exclui um registro de uso pelo ID
-     */
     public boolean excluir(int id) {
         String sql = "DELETE FROM registros_uso WHERE id = ?";
         
@@ -358,13 +507,14 @@ public class RegistroUsoRepository {
         }
     }
     
-    /**
-     * Busca registros por ID do motorista
-     */
     public List<RegistroUso> buscarPorMotoristaId(int motoristaId) {
         String sql = "SELECT * FROM registros_uso WHERE motorista_id = ?";
         List<RegistroUso> registros = new ArrayList<>();
         
+        // Lista para armazenar os dados extraídos do banco antes de processar
+        List<DadosRegistro> dadosExtraidos = new ArrayList<>();
+        
+        // Primeira etapa: extrair todos os dados do banco
         try (Connection conn = DatabaseConnection.getInstance().getConnection();
              PreparedStatement pstmt = conn.prepareStatement(sql)) {
 
@@ -372,25 +522,102 @@ public class RegistroUsoRepository {
             
             try (ResultSet rs = pstmt.executeQuery()) {
                 while (rs.next()) {
-                    RegistroUso registro = criarRegistroUsoDoResultSet(rs);
-                    if (registro != null) {
-                        registros.add(registro);
+                    DadosRegistro dados = new DadosRegistro();
+                    dados.id = rs.getInt("id");
+                    dados.veiculoId = rs.getInt("veiculo_id");
+                    dados.motoristaId = rs.getInt("motorista_id");
+                    dados.quilometragemInicial = rs.getDouble("quilometragem_inicial");
+                    dados.quilometragemFinal = rs.getDouble("quilometragem_final");
+                    dados.destinoOuFinalidade = rs.getString("destino_ou_finalidade");
+                    
+                    // Processa as datas
+                    try {
+                        if (rs.getString("data_inicio") != null) {
+                            dados.dataHoraSaida = sdf.parse(rs.getString("data_inicio"));
+                        }
+                        if (rs.getString("data_fim") != null) {
+                            dados.dataHoraRetorno = sdf.parse(rs.getString("data_fim"));
+                        }
+                    } catch (ParseException e) {
+                        System.err.println("Erro ao converter data do registro ID " + dados.id + ": " + e.getMessage());
                     }
+                    
+                    dadosExtraidos.add(dados);
                 }
             }
         } catch (SQLException e) {
             System.err.println("Erro ao buscar registros por motorista ID " + motoristaId + ": " + e.getMessage());
+            return registros;
         }
+        
+        // Segunda etapa: processar os dados extraídos
+        for (DadosRegistro dados : dadosExtraidos) {
+            try {
+                // Tenta buscar veiculo e motorista
+                Veiculo veiculo = veiculoRepository.buscarPorId(dados.veiculoId, null);
+                Motorista motorista = motoristaRepository.buscarPorId(dados.motoristaId);
+                Usuario usuario = (motorista != null) ? motorista.getUsuario() : null;
+
+                if (veiculo != null && motorista != null && usuario != null) {
+                    RegistroUso registro = new RegistroUso(
+                        dados.id,
+                        veiculo,
+                        motorista,
+                        usuario,
+                        dados.dataHoraSaida,
+                        dados.dataHoraRetorno, 
+                        dados.quilometragemInicial,
+                        dados.quilometragemFinal,
+                        dados.destinoOuFinalidade
+                    );
+                    registros.add(registro);
+                } else {
+                    // Cria objetos substitutos
+                    System.err.println(" Registro órfão ID " + dados.id + ": criando objetos substitutos");
+                    
+                    if (veiculo == null) {
+                        veiculo = new Veiculo(dados.veiculoId, "PLACA_AUSENTE", "MODELO_AUSENTE", "MARCA_AUSENTE", 2000, "COR_AUSENTE", 
+                                             StatusVeiculo.DISPONIVEL, 0.0, null);
+                    }
+                    
+                    if (motorista == null || usuario == null) {
+                        usuario = new Usuario("USUARIO_AUSENTE", "usuario_ausente", "senha", false);
+                        usuario.setId(dados.motoristaId);
+                        
+                        motorista = new Motorista(dados.motoristaId, "MOTORISTA_AUSENTE", "usuario_ausente", "senha", false, true, 
+                                                 "SETOR_AUSENTE", "CNH_AUSENTE", dados.motoristaId, true);
+                    }
+                    
+                    RegistroUso registro = new RegistroUso(
+                        dados.id,
+                        veiculo,
+                        motorista,
+                        usuario,
+                        dados.dataHoraSaida,
+                        dados.dataHoraRetorno,
+                        dados.quilometragemInicial,
+                        dados.quilometragemFinal,
+                        dados.destinoOuFinalidade
+                    );
+                    registros.add(registro);
+                }
+            } catch (Exception e) {
+                System.err.println(" Erro ao processar registro ID " + dados.id + ": " + e.getMessage());
+                // Continua com o próximo registro
+            }
+        }
+        
         return registros;
     }
     
-    /**
-     * Busca registros por ID do veículo
-     */
     public List<RegistroUso> buscarPorVeiculoId(int veiculoId) {
         String sql = "SELECT * FROM registros_uso WHERE veiculo_id = ?";
         List<RegistroUso> registros = new ArrayList<>();
         
+        // Lista para armazenar os dados extraídos do banco antes de processar
+        List<DadosRegistro> dadosExtraidos = new ArrayList<>();
+        
+        // Primeira etapa: extrair todos os dados do banco
         try (Connection conn = DatabaseConnection.getInstance().getConnection();
              PreparedStatement pstmt = conn.prepareStatement(sql)) {
 
@@ -398,15 +625,102 @@ public class RegistroUsoRepository {
             
             try (ResultSet rs = pstmt.executeQuery()) {
                 while (rs.next()) {
-                    RegistroUso registro = criarRegistroUsoDoResultSet(rs);
-                    if (registro != null) {
-                        registros.add(registro);
+                    DadosRegistro dados = new DadosRegistro();
+                    dados.id = rs.getInt("id");
+                    dados.veiculoId = rs.getInt("veiculo_id");
+                    dados.motoristaId = rs.getInt("motorista_id");
+                    dados.quilometragemInicial = rs.getDouble("quilometragem_inicial");
+                    dados.quilometragemFinal = rs.getDouble("quilometragem_final");
+                    dados.destinoOuFinalidade = rs.getString("destino_ou_finalidade");
+                    
+                    // Processa as datas
+                    try {
+                        if (rs.getString("data_inicio") != null) {
+                            dados.dataHoraSaida = sdf.parse(rs.getString("data_inicio"));
+                        }
+                        if (rs.getString("data_fim") != null) {
+                            dados.dataHoraRetorno = sdf.parse(rs.getString("data_fim"));
+                        }
+                    } catch (ParseException e) {
+                        System.err.println("Erro ao converter data do registro ID " + dados.id + ": " + e.getMessage());
                     }
+                    
+                    dadosExtraidos.add(dados);
                 }
             }
         } catch (SQLException e) {
             System.err.println("Erro ao buscar registros por veículo ID " + veiculoId + ": " + e.getMessage());
+            return registros;
         }
+        
+        // Segunda etapa: processar os dados extraídos
+        for (DadosRegistro dados : dadosExtraidos) {
+            try {
+                // Tenta buscar veiculo e motorista
+                Veiculo veiculo = veiculoRepository.buscarPorId(dados.veiculoId, null);
+                Motorista motorista = motoristaRepository.buscarPorId(dados.motoristaId);
+                Usuario usuario = (motorista != null) ? motorista.getUsuario() : null;
+
+                if (veiculo != null && motorista != null && usuario != null) {
+                    RegistroUso registro = new RegistroUso(
+                        dados.id,
+                        veiculo,
+                        motorista,
+                        usuario,
+                        dados.dataHoraSaida,
+                        dados.dataHoraRetorno, 
+                        dados.quilometragemInicial,
+                        dados.quilometragemFinal,
+                        dados.destinoOuFinalidade
+                    );
+                    registros.add(registro);
+                } else {
+                    // Cria objetos substitutos
+                    System.err.println(" Registro órfão ID " + dados.id + ": criando objetos substitutos");
+                    
+                    if (veiculo == null) {
+                        veiculo = new Veiculo(dados.veiculoId, "PLACA_AUSENTE", "MODELO_AUSENTE", "MARCA_AUSENTE", 2000, "COR_AUSENTE", 
+                                             StatusVeiculo.DISPONIVEL, 0.0, null);
+                    }
+                    
+                    if (motorista == null || usuario == null) {
+                        usuario = new Usuario("USUARIO_AUSENTE", "usuario_ausente", "senha", false);
+                        usuario.setId(dados.motoristaId);
+                        
+                        motorista = new Motorista(dados.motoristaId, "MOTORISTA_AUSENTE", "usuario_ausente", "senha", false, true, 
+                                                 "SETOR_AUSENTE", "CNH_AUSENTE", dados.motoristaId, true);
+                    }
+                    
+                    RegistroUso registro = new RegistroUso(
+                        dados.id,
+                        veiculo,
+                        motorista,
+                        usuario,
+                        dados.dataHoraSaida,
+                        dados.dataHoraRetorno,
+                        dados.quilometragemInicial,
+                        dados.quilometragemFinal,
+                        dados.destinoOuFinalidade
+                    );
+                    registros.add(registro);
+                }
+            } catch (Exception e) {
+                System.err.println(" Erro ao processar registro ID " + dados.id + ": " + e.getMessage());
+                // Continua com o próximo registro
+            }
+        }
+        
         return registros;
+    }
+    
+    private static class DadosRegistro {
+        int id;
+        int veiculoId;
+        int motoristaId;
+        double quilometragemInicial;
+        double quilometragemFinal;
+        String destinoOuFinalidade;
+        Date dataHoraSaida;
+        Date dataHoraRetorno;
     }
 }

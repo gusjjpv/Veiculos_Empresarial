@@ -14,10 +14,10 @@ public class Motorista extends Usuario {
         this.ativoMotorista = true;
     }
 
-    public Motorista(int id, String nome, String username, String senha, boolean ehAdm, boolean ativoUsuario,
+    public Motorista(int motoristaId, String nome, String username, String senha, boolean ehAdm, boolean ativoUsuario,
                      String setor, String cnh, int usuarioId, boolean ativoMotorista) {
-        super(id, nome, username, senha, ehAdm, ativoUsuario);
-        this.id = id; 
+        super(usuarioId, nome, username, senha, ehAdm, ativoUsuario); // Usar usuarioId para a superclasse
+        this.id = motoristaId;  
         this.setor = setor;
         this.cnh = cnh;
         this.usuarioId = usuarioId;
