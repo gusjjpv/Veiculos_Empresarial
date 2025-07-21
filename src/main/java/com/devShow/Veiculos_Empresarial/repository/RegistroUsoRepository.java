@@ -97,7 +97,6 @@ public class RegistroUsoRepository {
         String sql = "SELECT * FROM registros_uso WHERE id = ?";
         RegistroUso registro = null;
 
-        // Se não foi passada uma conexão, cria uma nova
         if (conn == null) {
             try (Connection connection = DatabaseConnection.getInstance().getConnection();
                  PreparedStatement pstmt = connection.prepareStatement(sql)) {
@@ -113,7 +112,7 @@ public class RegistroUsoRepository {
                 System.err.println("Erro ao buscar registro de uso por ID: " + e.getMessage());
             }
         } else {
-            // Usa a conexão fornecida
+
             try (PreparedStatement pstmt = conn.prepareStatement(sql)) {
 
                 pstmt.setInt(1, id);
@@ -177,9 +176,6 @@ public class RegistroUsoRepository {
         }
     }
     
-    /**
-     * Busca um registro por ID de forma mais robusta, incluindo informações básicas mesmo se dados relacionados estiverem ausentes
-     */
     public RegistroUso buscarPorIdRobusto(int id) {
         String sql = "SELECT * FROM registros_uso WHERE id = ?";
         
@@ -277,10 +273,7 @@ public class RegistroUsoRepository {
             return null;
         }
     }
-    
-    /**
-     * Cria um registro básico apenas com os dados essenciais, sem validar referências
-     */
+ 
     private RegistroUso criarRegistroBasico(ResultSet rs) throws SQLException {
         int id = rs.getInt("id");
         int veiculoId = rs.getInt("veiculo_id");
@@ -632,8 +625,7 @@ public class RegistroUsoRepository {
                     dados.quilometragemInicial = rs.getDouble("quilometragem_inicial");
                     dados.quilometragemFinal = rs.getDouble("quilometragem_final");
                     dados.destinoOuFinalidade = rs.getString("destino_ou_finalidade");
-                    
-                    // Processa as datas
+
                     try {
                         if (rs.getString("data_inicio") != null) {
                             dados.dataHoraSaida = sdf.parse(rs.getString("data_inicio"));
@@ -653,10 +645,10 @@ public class RegistroUsoRepository {
             return registros;
         }
         
-        // Segunda etapa: processar os dados extraídos
+  
         for (DadosRegistro dados : dadosExtraidos) {
             try {
-                // Tenta buscar veiculo e motorista
+
                 Veiculo veiculo = veiculoRepository.buscarPorId(dados.veiculoId, null);
                 Motorista motorista = motoristaRepository.buscarPorId(dados.motoristaId);
                 Usuario usuario = (motorista != null) ? motorista.getUsuario() : null;
@@ -675,7 +667,7 @@ public class RegistroUsoRepository {
                     );
                     registros.add(registro);
                 } else {
-                    // Cria objetos substitutos
+
                     System.err.println(" Registro órfão ID " + dados.id + ": criando objetos substitutos");
                     
                     if (veiculo == null) {
@@ -706,13 +698,33 @@ public class RegistroUsoRepository {
                 }
             } catch (Exception e) {
                 System.err.println(" Erro ao processar registro ID " + dados.id + ": " + e.getMessage());
-                // Continua com o próximo registro
+
             }
         }
         
         return registros;
     }
-    
+
+    public boolean motoristaTemViagemAtiva(int motoristaId) {
+        String sql = "SELECT COUNT(*) FROM registros_uso WHERE motorista_id = ? AND data_fim IS NULL";
+        
+        try (Connection conn = DatabaseConnection.getInstance().getConnection();
+             PreparedStatement pstmt = conn.prepareStatement(sql)) {
+            
+            pstmt.setInt(1, motoristaId);
+            
+            try (ResultSet rs = pstmt.executeQuery()) {
+                if (rs.next()) {
+                    return rs.getInt(1) > 0;
+                }
+            }
+        } catch (SQLException e) {
+            System.err.println("Erro ao verificar viagem ativa do motorista ID " + motoristaId + ": " + e.getMessage());
+        }
+        
+        return false;
+    }
+
     private static class DadosRegistro {
         int id;
         int veiculoId;

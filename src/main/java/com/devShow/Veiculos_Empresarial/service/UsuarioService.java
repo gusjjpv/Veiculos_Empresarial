@@ -144,12 +144,10 @@ public class UsuarioService {
         manutencaoService.excluirManutencao(placaVeiculo);
     }
 
-    //metodos de registroUso
+
     private RegistroUsoService registroUsoService = new RegistroUsoService();
     
-    /**
-     * Visualiza o histórico completo de viagens (apenas para administradores)
-     */
+
     public List<RegistroUso> visualizarHistoricoCompleto(Usuario admin) {
         if (admin == null || !admin.getEhAdm()) {
             System.err.println(" ACESSO NEGADO: Apenas administradores podem visualizar o histórico completo.");
@@ -168,9 +166,6 @@ public class UsuarioService {
         return historico;
     }
     
-    /**
-     * Visualiza o histórico de viagens por motorista (apenas para administradores)
-     */
     public List<RegistroUso> visualizarHistoricoPorMotorista(Usuario admin, String cnh) {
         if (admin == null || !admin.getEhAdm()) {
             System.err.println(" ACESSO NEGADO: Apenas administradores podem visualizar histórico de motoristas.");
@@ -193,10 +188,7 @@ public class UsuarioService {
         
         return historico;
     }
-    
-    /**
-     * Visualiza o histórico de viagens por veículo (apenas para administradores)
-     */
+
     public List<RegistroUso> visualizarHistoricoPorVeiculo(Usuario admin, String placa) {
         if (admin == null || !admin.getEhAdm()) {
             System.err.println(" ACESSO NEGADO: Apenas administradores podem visualizar histórico de veículos.");
@@ -219,10 +211,7 @@ public class UsuarioService {
         
         return historico;
     }
-    
-    /**
-     * Exclui um registro de viagem (apenas para administradores)
-     */
+
     public boolean excluirRegistroViagem(Usuario admin, int idRegistro) {
         if (admin == null || !admin.getEhAdm()) {
             System.err.println(" ACESSO NEGADO: Apenas administradores podem excluir registros de viagem.");

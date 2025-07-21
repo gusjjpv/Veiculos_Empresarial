@@ -6,10 +6,6 @@ import java.util.Date;
 import java.util.List;
 import java.util.ArrayList;
 
-/**
- * Service para gerenciar registros de uso de veículos.
- * Contém toda a lógica de negócio para controle de uso da frota empresarial.
- */
 public class RegistroUsoService {
     
     private RegistroUsoRepository registroUsoRepository;
@@ -22,9 +18,17 @@ public class RegistroUsoService {
         this.registroUsoRepository = new RegistroUsoRepository(veiculoRepository, motoristaRepository);
     }
 
+    public boolean motoristaTemViagemAtiva(int motoristaId) {
+        return registroUsoRepository.motoristaTemViagemAtiva(motoristaId);
+    }
 
     public RegistroUso registrarSaida(Veiculo veiculo, Motorista motorista, String destino) {
     try {
+        if (registroUsoRepository.motoristaTemViagemAtiva(motorista.getId())) {
+            System.err.println(" ERRO: O motorista " + motorista.getNome() + " já possui uma viagem em andamento!");
+            System.err.println(" Finalize a viagem atual antes de iniciar uma nova.");
+            return null;
+        }
 
         RegistroUso novoRegistro = new RegistroUso(veiculo, motorista, new Date(), veiculo.getQuilometragemAtual(), destino);
 

@@ -88,6 +88,15 @@ public class MotoristaService {
             System.out.println(" Erro: Usuário não é um motorista válido!");
             return false;
         }
+        
+        RegistroUsoService registroUsoService = new RegistroUsoService();
+        if (registroUsoService.motoristaTemViagemAtiva(motoristaUsuario.getId())) {
+            System.err.println(" ERRO: Você já possui uma viagem em andamento!");
+            System.err.println(" Finalize a viagem atual antes de iniciar uma nova.");
+            System.err.println(" Vá para a opção 'FINALIZAR USO DE VEÍCULO' para concluir sua viagem atual.");
+            return false;
+        }
+        
         RegistroUso novoRegistro = veiculoService.usarVeiculo(placa, motoristaUsuario, destino);
 
         return novoRegistro != null;
