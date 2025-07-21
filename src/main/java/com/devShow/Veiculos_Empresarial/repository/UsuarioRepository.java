@@ -7,10 +7,8 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.sql.Statement;
 
 public class UsuarioRepository {
-    // salvar usuario no banco
     public void salvar(Usuario usuario) {
         String sql = "INSERT INTO usuarios (nome, user_name, senha, tipo) VALUES (?, ?, ?, ?)";
 
@@ -32,31 +30,33 @@ public class UsuarioRepository {
         }
     }
 
-    // busca por nome
     public Usuario buscarPorUsername(String username) {
         String sql = "SELECT * FROM usuarios WHERE user_name = ?";
         Usuario usuario = null;
 
         try (Connection conn = DatabaseConnection.getInstance().getConnection();
-                PreparedStatement pstmt = conn.prepareStatement(sql)) {
+            PreparedStatement pstmt = conn.prepareStatement(sql)) {
 
             pstmt.setString(1, username);
 
             try (ResultSet rs = pstmt.executeQuery()) {
                 if (rs.next()) {
+                    int idDb = rs.getInt("id");
                     String nomeDb = rs.getString("nome");
                     String usernameDb = rs.getString("user_name");
                     String senhaDb = rs.getString("senha");
                     String tipoDb = rs.getString("tipo");
-
                     boolean ehAdmin = tipoDb.equals("ADMIN");
 
                     usuario = new Usuario(nomeDb, usernameDb, senhaDb, ehAdmin);
+                    usuario.setId(idDb); 
+
                 }
             }
         } catch (SQLException e) {
             System.err.println("Erro ao buscar usuário: " + e.getMessage());
         }
+        
         return usuario;
     }
 

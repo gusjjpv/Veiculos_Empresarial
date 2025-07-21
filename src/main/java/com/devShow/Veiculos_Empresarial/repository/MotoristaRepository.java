@@ -11,7 +11,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class MotoristaRepository {
-    //salvar motorista no banco
     public void salvar(Motorista motorista) {
         String sqlUsuario = "INSERT INTO usuarios (nome, user_name, senha, tipo) VALUES (?, ?, ?, ?)";
         String sqlMotorista = "INSERT INTO motoristas (setor, cnh, usuario_id) VALUES (?, ?, ?)";
@@ -92,7 +91,11 @@ public class MotoristaRepository {
     }
 
     public List<Motorista> listarTodos() {
-        String sql = "SELECT u.nome, u.user_name, u.senha, m.setor, m.cnh " + "FROM motoristas m " + "JOIN usuarios u ON m.usuario_id = u.id";
+        String sql = "SELECT u.id as usuario_id, u.nome, u.user_name, u.senha, u.tipo, u.ativo as usuario_ativo, " +
+                     "m.id as motorista_id, m.setor, m.cnh, m.ativo as motorista_ativo " +
+                     "FROM motoristas m " +
+                     "JOIN usuarios u ON m.usuario_id = u.id " +
+                     "WHERE m.ativo = 1 AND u.ativo = 1";
         
         List<Motorista> motoristas = new ArrayList<>();
 
@@ -101,7 +104,7 @@ public class MotoristaRepository {
              ResultSet rs = stmt.executeQuery(sql)) {
 
             while (rs.next()) {
-                motoristas.add(criarMotoristaDoResultSet(rs));
+                motoristas.add(criarMotoristaCompletoDoResultSet(rs));
             }
         } catch (SQLException e) {
             System.err.println("Erro ao listar motoristas: " + e.getMessage());
@@ -110,10 +113,11 @@ public class MotoristaRepository {
     }
 
     public List<Motorista> buscarPorNome(String nome){
-        String sql = "SELECT u.nome, u.user_name, u.senha, m.setor, m.cnh "
-                   + "FROM motoristas m "
-                   + "JOIN usuarios u ON m.usuario_id = u.id "
-                   + "WHERE u.nome LIKE ?";
+        String sql = "SELECT u.id as usuario_id, u.nome, u.user_name, u.senha, u.tipo, u.ativo as usuario_ativo, " +
+                     "m.id as motorista_id, m.setor, m.cnh, m.ativo as motorista_ativo " +
+                     "FROM motoristas m " +
+                     "JOIN usuarios u ON m.usuario_id = u.id " +
+                     "WHERE u.nome LIKE ? AND m.ativo = 1 AND u.ativo = 1";
         
         List<Motorista> motoristas = new ArrayList<>();
         
@@ -121,19 +125,17 @@ public class MotoristaRepository {
              PreparedStatement pstmt = conn.prepareStatement(sql)) {
 
             pstmt.setString(1, "%" + nome + "%");
-
+            
             try (ResultSet rs = pstmt.executeQuery()) {
                 while (rs.next()) {
-                    motoristas.add(criarMotoristaDoResultSet(rs));
+                    motoristas.add(criarMotoristaCompletoDoResultSet(rs));
                 }
             }
         } catch (SQLException e) {
             System.err.println("Erro ao buscar motorista por nome: " + e.getMessage());
         }
         return motoristas;
-    }
-
-    private Motorista criarMotoristaDoResultSet(ResultSet rs) throws SQLException {
+    }    private Motorista criarMotoristaDoResultSet(ResultSet rs) throws SQLException {
         String nome = rs.getString("nome");
         String username = rs.getString("user_name");
         String senha = rs.getString("senha");
@@ -141,6 +143,44 @@ public class MotoristaRepository {
         String cnh = rs.getString("cnh");
         
         return new Motorista(nome, username, senha, setor, cnh);
+    }
+
+    public Motorista buscarPorId(int usuarioId) {
+        String sql = "SELECT u.id as usuario_id, u.nome, u.user_name, u.senha, u.tipo, u.ativo as usuario_ativo, " +
+                 "m.id as motorista_id, m.setor, m.cnh, m.ativo as motorista_ativo " +
+                 "FROM motoristas m " +
+                 "JOIN usuarios u ON m.usuario_id = u.id " +
+                 "WHERE m.usuario_id = ?"; 
+
+        try (Connection conn = DatabaseConnection.getInstance().getConnection();
+            PreparedStatement pstmt = conn.prepareStatement(sql)) {
+
+            pstmt.setInt(1, usuarioId);
+
+            try (ResultSet rs = pstmt.executeQuery()) {
+                if (rs.next()) {
+                return criarMotoristaCompletoDoResultSet(rs);
+                }
+            }
+        } catch (SQLException e) {
+            System.err.println("Erro ao buscar motorista por ID de usuário: " + e.getMessage());
+        }
+        return null;
+    }
+
+    private Motorista criarMotoristaCompletoDoResultSet(ResultSet rs) throws SQLException {
+        int motoristaId = rs.getInt("motorista_id");
+        int usuarioId = rs.getInt("usuario_id");
+        String nome = rs.getString("nome");
+        String username = rs.getString("user_name");
+        String senha = rs.getString("senha");
+        boolean ehAdm = "ADMIN".equals(rs.getString("tipo"));
+        boolean usuarioAtivo = rs.getBoolean("usuario_ativo");
+        String setor = rs.getString("setor");
+        String cnh = rs.getString("cnh");
+        boolean motoristaAtivo = rs.getBoolean("motorista_ativo");
+        
+        return new Motorista(motoristaId, nome, username, senha, ehAdm, usuarioAtivo, setor, cnh, usuarioId, motoristaAtivo);
     }
 
     public void atualizar(Motorista motorista) {
@@ -240,4 +280,26 @@ public class MotoristaRepository {
         }
     }
 
+    public Motorista buscarPorCnhComId(String cnh) {
+        String sql = "SELECT u.id as usuario_id, u.nome, u.user_name, u.senha, u.tipo, u.ativo as usuario_ativo, " +
+                     "m.id as motorista_id, m.setor, m.cnh, m.ativo as motorista_ativo " +
+                     "FROM motoristas m " +
+                     "JOIN usuarios u ON m.usuario_id = u.id " +
+                     "WHERE m.cnh = ?";
+        
+        try (Connection conn = DatabaseConnection.getInstance().getConnection();
+             PreparedStatement pstmt = conn.prepareStatement(sql)) {
+
+            pstmt.setString(1, cnh);
+
+            try (ResultSet rs = pstmt.executeQuery()) {
+                if (rs.next()) {
+                    return criarMotoristaCompletoDoResultSet(rs);
+                }
+            }
+        } catch (SQLException e) {
+            System.err.println("Erro ao buscar motorista por CNH com ID: " + e.getMessage());
+        }
+        return null;
+    }
 }

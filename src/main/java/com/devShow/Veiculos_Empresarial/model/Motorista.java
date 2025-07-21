@@ -3,11 +3,34 @@ package main.java.com.devShow.Veiculos_Empresarial.model;
 public class Motorista extends Usuario {
     private String setor;
     private String cnh;
-
+    private int usuarioId; 
+    private boolean ativoMotorista;
+    private int id;  
+    
     public Motorista(String nome, String username, String senha, String setor, String cnh) {
         super(nome, username, senha, false);
         this.setor = setor;
         this.cnh = cnh;
+        this.ativoMotorista = true;
+    }
+
+    public Motorista(int motoristaId, String nome, String username, String senha, boolean ehAdm, boolean ativoUsuario,
+                     String setor, String cnh, int usuarioId, boolean ativoMotorista) {
+        super(usuarioId, nome, username, senha, ehAdm, ativoUsuario); // Usar usuarioId para a superclasse
+        this.id = motoristaId;  
+        this.setor = setor;
+        this.cnh = cnh;
+        this.usuarioId = usuarioId;
+        this.ativoMotorista = ativoMotorista;
+    }
+
+
+    public int getId() {
+        return id;
+    }
+
+    public void setId(int id) {
+        this.id = id;
     }
 
     public String getSetor() {
@@ -26,26 +49,31 @@ public class Motorista extends Usuario {
         this.cnh = cnh;
     }
 
-    public void cadastrarMotorista() {
+       public void setUsuarioId(int usuarioId) {
+        this.usuarioId = usuarioId;
     }
 
-    public void excluirMotorista() {
+       public boolean isAtivoMotorista() {
+        return ativoMotorista;
     }
 
-    public void listarTodosMotoristas() {
+    public void setAtivoMotorista(boolean ativoMotorista) {
+        this.ativoMotorista = ativoMotorista;
     }
 
-    public void atualizarDadosDeMotorista() {
-    }
-
-    public void atualizarDadoDeMotorista() {
-    }
-
-    public void buscarMotorista() {
+    public Usuario getUsuario() {
+        return this;
     }
 
     @Override
     public String toString() {
-        return super.toString() + " setor:" + this.setor + " cnh:" + this.cnh;
+        return "Motorista{" +
+               "id=" + id +
+               ", setor='" + setor + '\'' +
+               ", cnh='" + cnh + '\'' +
+               ", usuarioId=" + usuarioId +
+               ", ativoMotorista=" + ativoMotorista +
+               ", " + super.toString() +
+               '}';
     }
 }
